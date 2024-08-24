@@ -33,6 +33,9 @@ SimplePurePursuit::SimplePurePursuit()
     "input/trajectory", 1, [this](const Trajectory::SharedPtr msg) { trajectory_ = msg; });
   sub_objects_ = create_subscription<Float64MultiArray>(
     "input/objects", 1, [this](const Float64MultiArray::SharedPtr msg) { objects_ = msg; });
+  sub_steering_ = create_subscription<SteeringReport>(
+    "input/steering", 10,
+    [this](const SteeringReport::SharedPtr msg) { current_steering_ = msg->steering_tire_angle; });
   
   using namespace std::literals::chrono_literals;
   timer_ =
@@ -112,23 +115,25 @@ void SimplePurePursuit::onTimer()
       double object_distance = std::hypot(object_x - odometry_->pose.pose.position.x, object_y - odometry_->pose.pose.position.y);
       double object_angle = std::atan2(object_y - odometry_->pose.pose.position.y, object_x - odometry_->pose.pose.position.x);
 
-      double object_radius_sum = object_radius + 4.0;
+      double object_radius_sum = object_radius + 4.2;
       //車体から見た物体の角度
       double object_angle_diff = object_angle - tf2::getYaw(odometry_->pose.pose.orientation);
       
+      if (current_steering_ < 1.0){
       //障害物が近づいたとき回避する
-      if (object_distance < object_radius_sum){
+      if (object_distance < object_radius_sum && object_distance > object_radius+0.4){
         //物体が前方にあるとき
         if ((object_angle_diff <0.5&&  object_angle_diff > 0.2) ||  (object_angle_diff < -0.2 && object_angle_diff > -0.5)){
           //物体が右側にあるとき
           if (object_angle_diff < 0){
             //左側に避ける
-            cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance) + 0.3;
+            cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance) + 0.36;
           } else {
             //右側に避ける
-            cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance) - 0.3;
+            cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance) - 0.36;
           }
         }
+      }
       }
       std::cout << "Object x: " << object_x << " Object y: " << object_y << std::endl;
     }
