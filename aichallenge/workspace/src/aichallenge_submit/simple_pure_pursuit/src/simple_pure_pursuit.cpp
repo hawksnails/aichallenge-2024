@@ -24,7 +24,7 @@ SimplePurePursuit::SimplePurePursuit()
   use_external_target_vel_(declare_parameter<bool>("use_external_target_vel", false)),
   external_target_vel_(declare_parameter<float>("external_target_vel", 0.0))
 {
-  this->declare_parameter("minimum_trj_point_size", 10);
+  this->declare_parameter("minimum_trj_point_size", 16);
   minimum_trj_point_size_ = this->get_parameter("minimum_trj_point_size").as_int();
   
   pub_cmd_ = create_publisher<AckermannControlCommand>("output/control_cmd", 1);
@@ -68,7 +68,7 @@ void SimplePurePursuit::onTimer()
     (closet_traj_point_idx == trajectory_->points.size() - 1) ||
     (trajectory_->points.size() <= minimum_trj_point_size_)) {
     cmd.longitudinal.speed = 0.0;
-    cmd.longitudinal.acceleration = -30.0;
+    cmd.longitudinal.acceleration = -25.0;
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "reached to the goal");
   } else {
     // get closest trajectory point from current position
