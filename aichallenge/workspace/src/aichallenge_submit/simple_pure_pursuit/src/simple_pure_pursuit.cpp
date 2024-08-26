@@ -18,9 +18,9 @@ SimplePurePursuit::SimplePurePursuit()
 : Node("simple_pure_pursuit"),
   // initialize parameters
   wheel_base_(declare_parameter<float>("wheel_base", 2.14)),
-  lookahead_gain_(declare_parameter<float>("lookahead_gain", 1.0)),
-  lookahead_min_distance_(declare_parameter<float>("lookahead_min_distance", 1.0)),
-  speed_proportional_gain_(declare_parameter<float>("speed_proportional_gain", 1.0)),
+  lookahead_gain_(declare_parameter<float>("lookahead_gain", 0.5)),
+  lookahead_min_distance_(declare_parameter<float>("lookahead_min_distance", 0.5)),
+  speed_proportional_gain_(declare_parameter<float>("speed_proportional_gain", 100.0)),
   use_external_target_vel_(declare_parameter<bool>("use_external_target_vel", false)),
   external_target_vel_(declare_parameter<float>("external_target_vel", 0.0))
 {
@@ -33,7 +33,7 @@ SimplePurePursuit::SimplePurePursuit()
 
   using namespace std::literals::chrono_literals;
   timer_ =
-    rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
+    rclcpp::create_timer(this, get_clock(), 20ms, std::bind(&SimplePurePursuit::onTimer, this));
 }
 
 AckermannControlCommand zeroAckermannControlCommand(rclcpp::Time stamp)
@@ -74,15 +74,19 @@ void SimplePurePursuit::onTimer()
     // calc longitudinal speed and acceleration
     double target_longitudinal_vel =
       use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
+    target_longitudinal_vel = 180.0 * 1000 / 3600.0;
     double current_longitudinal_vel = odometry_->twist.twist.linear.x;
 
     cmd.longitudinal.speed = target_longitudinal_vel;
     cmd.longitudinal.acceleration =
       speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+    std::cout << "cmd.longitudinal.acceleration: " << cmd.longitudinal.acceleration << std::endl;
+    // cmd.longitudinal.acceleration = 300;
+    
 
     // calc lateral control
     //// calc lookahead distance
-    double lookahead_distance = lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
+    double lookahead_distance = 8.0;//lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
     //// calc center coordinate of rear wheel
     double rear_x = odometry_->pose.pose.position.x -
                     wheel_base_ / 2.0 * std::cos(odometry_->pose.pose.orientation.z);
@@ -106,6 +110,12 @@ void SimplePurePursuit::onTimer()
                    tf2::getYaw(odometry_->pose.pose.orientation);
     cmd.lateral.steering_tire_angle =
       std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance);
+
+    // if (std::abs(cmd.lateral.steering_tire_angle) > 0.3 || current_longitudinal_vel > 35.0) {
+    //   cmd.longitudinal.speed = 20.0;
+    //   cmd.longitudinal.acceleration = -50.0;
+    //   RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "steering angle is too large");
+    // }
   }
   pub_cmd_->publish(cmd);
 }
