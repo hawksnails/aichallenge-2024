@@ -38,6 +38,8 @@ private:
 
     rclcpp::Client<std_srvs::srv::SetBool>::SharedPtr ekf_trigger_client_;
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr goal_publisher_;
+    rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr is_pit_publisher_;
+    //0 for goal, 1 for half goal, 2 for pitstop
     rclcpp::Subscription<autoware_adapi_v1_msgs::msg::RouteState>::SharedPtr route_state_subscriber_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometry_subscriber_;
     rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr vehicle_condition_subscriber_;
