@@ -52,11 +52,12 @@ class SimplePurePursuit : public rclcpp::Node {
   const double speed_proportional_gain_;
   const bool use_external_target_vel_;
   const double external_target_vel_;
-  
+
 
  private:
   void onTimer();
   bool subscribeMessageAvailable();
+  bool is_start;
 };
 }  // namespace simple_pure_pursuit
 #endif  // SIMPLE_PURE_PURSUIT_HPP_
