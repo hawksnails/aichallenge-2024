@@ -11,12 +11,15 @@
 #include <optional>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/int32.hpp>
+#include <autoware_auto_vehicle_msgs/msg/velocity_report.hpp>
+#include<math.h>
 
 namespace simple_pure_pursuit {
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_auto_vehicle_msgs::msg::SteeringReport;
+using autoware_auto_vehicle_msgs::msg::VelocityReport;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Twist;
 using nav_msgs::msg::Odometry;
@@ -31,6 +34,7 @@ class SimplePurePursuit : public rclcpp::Node {
   rclcpp::Subscription<Float64MultiArray>::SharedPtr sub_objects_;
   rclcpp::Subscription<SteeringReport>::SharedPtr sub_steering_;
   rclcpp::Subscription<Int32>::SharedPtr sub_is_pitstop_;
+  rclcpp::Subscription<VelocityReport>::SharedPtr sub_velocity_;
   // publishers
   rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_cmd_;
   // timer
@@ -40,6 +44,7 @@ class SimplePurePursuit : public rclcpp::Node {
   Odometry::SharedPtr odometry_;
   Float64MultiArray::SharedPtr objects_;
   Int32::SharedPtr is_pitstop_;
+  VelocityReport::SharedPtr velocity_;
 
   double current_steering_;
 
@@ -51,6 +56,7 @@ class SimplePurePursuit : public rclcpp::Node {
   const bool use_external_target_vel_;
   const double external_target_vel_;
   long unsigned int minimum_trj_point_size_;
+  unsigned int to_goal; // 0 for goal, 1 fo half goal, 2 for pitstop
  private:
   void onTimer();
   bool subscribeMessageAvailable();

@@ -40,11 +40,15 @@ SimplePurePursuit::SimplePurePursuit()
     "input/steering", 10,
     [this](const SteeringReport::SharedPtr msg) { current_steering_ = msg->steering_tire_angle; });
   sub_is_pitstop_= create_subscription<Int32>(
-    "input/is_pitstop", 1, [this](const Int32::SharedPtr msg) { is_pitstop_ = msg; });
+    "/aichallenge/pitstop/is_pit", 1, [this](const Int32::SharedPtr msg) { is_pitstop_ = msg; });
+  sub_velocity_= create_subscription<VelocityReport>(
+    "/vehicle/status/velocity_status", 1, [this](const VelocityReport::SharedPtr msg) { velocity_ = msg; });
 
   using namespace std::literals::chrono_literals;
   timer_ =
     rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
+
+  to_goal = 0;
 }
 
 AckermannControlCommand zeroAckermannControlCommand(rclcpp::Time stamp)
@@ -71,8 +75,19 @@ void SimplePurePursuit::onTimer()
   // publish zero command
   AckermannControlCommand cmd = zeroAckermannControlCommand(get_clock()->now());
   double target_longitudinal_vel = 0.0;  
-  if (closet_traj_point_idx == trajectory_->points.size() - 1 ||
-      trajectory_->points.size() <= minimum_trj_point_size_) {
+
+  if(is_pitstop_) {
+    to_goal = is_pitstop_ ->data;
+  }
+
+  // double cur_vel = sqrt(pow(velocity_->longitudinal_velocity, 2) + pow(velocity_->lateral_velocity, 2)) * 3.6; // mps -> kmh
+  // double left_point = (double) trajectory_->points.size();
+  if (to_goal == 2 && trajectory_->points.size() <= 16){
+    cmd.longitudinal.speed = 0.0;
+    cmd.longitudinal.acceleration = -30.0;
+    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "reached to the pitstop");
+  } else if (to_goal == 3 && (closet_traj_point_idx == trajectory_->points.size() - 1 ||
+    trajectory_->points.size() <= 5)) {
     cmd.longitudinal.speed = 0.0;
     cmd.longitudinal.acceleration = -30.0;
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "reached to the goal");
@@ -82,7 +97,7 @@ void SimplePurePursuit::onTimer()
 
     // calc longitudinal speed and acceleration
     target_longitudinal_vel = 
-       use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
+        use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
     double current_longitudinal_vel = odometry_->twist.twist.linear.x;
     cmd.longitudinal.speed = target_longitudinal_vel;
     cmd.longitudinal.acceleration =
@@ -101,7 +116,7 @@ void SimplePurePursuit::onTimer()
       trajectory_->points.begin() + closet_traj_point_idx, trajectory_->points.end(),
       [&](const TrajectoryPoint & point) {
         return std::hypot(point.pose.position.x - rear_x, point.pose.position.y - rear_y) >=
-               lookahead_distance;
+                lookahead_distance;
       });
     if (lookahead_point_itr == trajectory_->points.end()) {
       lookahead_point_itr = trajectory_->points.end() - 1;
@@ -111,11 +126,14 @@ void SimplePurePursuit::onTimer()
 
     // calc steering angle for lateral control
     double alpha = std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) -
-                   tf2::getYaw(odometry_->pose.pose.orientation);
+                    tf2::getYaw(odometry_->pose.pose.orientation);
     cmd.lateral.steering_tire_angle =
       std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance);
 
     for (size_t i = 0; i < objects_->data.size(); i += 4) {
+      if(i == 12 || i == 16 || i == 20 || i == 24) {
+        continue;
+      }
       double object_x = objects_->data[i];
       double object_y = objects_->data[i + 1];
       double object_radius = objects_->data[i + 3];
@@ -128,19 +146,19 @@ void SimplePurePursuit::onTimer()
       
       if (current_steering_ < 1.0){
       //障害物が近づいたとき回避する
-      if (object_distance < object_radius_sum && object_distance > object_radius+0.4){
-        //物体が前方にあるとき
-        if ((object_angle_diff <0.5&&  object_angle_diff > 0.2) ||  (object_angle_diff < -0.2 && object_angle_diff > -0.5)){
-          //物体が右側にあるとき
-          if (object_angle_diff < 0){
-            //左側に避ける
-            cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance) + 0.36;
-          } else {
-            //右側に避ける
-            cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance) - 0.36;
+        if (object_distance < object_radius_sum && object_distance > object_radius+0.4){
+          //物体が前方にあるとき
+          if ((object_angle_diff <0.5&&  object_angle_diff > 0.2) ||  (object_angle_diff < -0.2 && object_angle_diff > -0.5)){
+            //物体が右側にあるとき
+            if (object_angle_diff < 0){
+              //左側に避ける
+              cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance) + 0.36;
+            } else {
+              //右側に避ける
+              cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance) - 0.36;
+            }
           }
         }
-      }
       }
       std::cout << "Object x: " << object_x << " Object y: " << object_y << std::endl;
     }
@@ -160,6 +178,10 @@ bool SimplePurePursuit::subscribeMessageAvailable()
   }
   if (!objects_) {
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "Objects are not available");
+    return false;
+  }
+  if (!velocity_) {
+    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "Velocity is  not available");
     return false;
   }
   return true;
