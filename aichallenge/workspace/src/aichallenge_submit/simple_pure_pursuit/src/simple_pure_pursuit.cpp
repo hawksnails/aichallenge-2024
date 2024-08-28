@@ -84,6 +84,7 @@ void SimplePurePursuit::onTimer()
   static double current_x = 0.0;
   static double current_y = 0.0;
   static bool is_wall = false;  // 壁にぶつかったことを検知するフラグ
+  static double sutea = 0.0;
 
   if (
     (closet_traj_point_idx == trajectory_->points.size() - 1) ||
@@ -139,7 +140,7 @@ void SimplePurePursuit::onTimer()
       double object_angle_diff = object_angle - tf2::getYaw(odometry_->pose.pose.orientation);
 
       // 障害物が回避範囲内に入った場合
-      if (current_steering_ < 2.0 && current_steering_ > -2.0) { //4.5なら避けれる
+      if (current_steering_ < 4.5 && current_steering_ > -4.5) { //4.5なら避けれる　２．０は際どい
         if (object_distance < object_radius_sum && object_distance > object_radius + 0.4) {
           object_detected = true;  // 障害物検知フラグ
           //物体が前方にあるとき
@@ -159,21 +160,29 @@ void SimplePurePursuit::onTimer()
     }
 
     // 初めて障害物を検知した場合にis_startをtrueに設定
-    if (object_detected && current_velocity_ < 0.02) {
+    if (object_detected && current_velocity_ < 0.3 && !is_wall) {
       is_start = true;
       current_x = odometry_->pose.pose.position.x;
       current_y = odometry_->pose.pose.position.y;
       is_wall = true;
+      gear_cmd.command = GearCommand::REVERSE;  // リバースギア
+      sutea = current_steering_;
+    }else if ( object_detected && current_velocity_ < 0.02 && is_wall){
+      if(sutea < 0){
+        cmd.lateral.steering_tire_angle = 2.0;
+      } else {
+        cmd.lateral.steering_tire_angle = 2.0;
+      }
     }
 
     // 速度が0で障害物検知後の壁回避動作
     if (is_wall) {
       if (std::hypot(current_x - odometry_->pose.pose.position.x, current_y - odometry_->pose.pose.position.y) < 2.0) {
-        gear_cmd.command = 21;  // バックギア
-        cmd.longitudinal.acceleration = 3.0;
+        cmd.longitudinal.speed = -3.0;
+        cmd.longitudinal.acceleration = -3.0;
       } else {
         is_wall = false;
-        gear_cmd.command = 2;  // 前進ギア
+        gear_cmd.command = GearCommand::DRIVE;  // 前進ギア
       }
     }
   }
