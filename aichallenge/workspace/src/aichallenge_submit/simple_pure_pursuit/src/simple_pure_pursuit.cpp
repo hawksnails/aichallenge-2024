@@ -76,10 +76,14 @@ void SimplePurePursuit::onTimer()
   }
 
   size_t closet_traj_point_idx = findNearestIndex(trajectory_->points, odometry_->pose.pose.position);
-  
+
   // publish zero command
   AckermannControlCommand cmd = zeroAckermannControlCommand(get_clock()->now());
   GearCommand gear_cmd = zeroGearCommand(get_clock()->now());
+
+  static double current_x = 0.0;
+  static double current_y = 0.0;
+  static bool is_wall = false;  // 壁にぶつかったことを検知するフラグ
 
   if (
     (closet_traj_point_idx == trajectory_->points.size() - 1) ||
@@ -90,7 +94,7 @@ void SimplePurePursuit::onTimer()
   } else {
     // get closest trajectory point from current position
     TrajectoryPoint closet_traj_point = trajectory_->points.at(closet_traj_point_idx);
-    
+
     // calculate longitudinal speed and acceleration
     double target_longitudinal_vel = use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
     double current_longitudinal_vel = odometry_->twist.twist.linear.x;
@@ -117,7 +121,7 @@ void SimplePurePursuit::onTimer()
 
     double lookahead_point_x = lookahead_point_itr->pose.position.x;
     double lookahead_point_y = lookahead_point_itr->pose.position.y;
-    
+
     // calculate steering angle for lateral control
     double alpha = std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) - tf2::getYaw(odometry_->pose.pose.orientation);
     cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance);
@@ -133,9 +137,9 @@ void SimplePurePursuit::onTimer()
 
       double object_radius_sum = object_radius + 4.5;
       double object_angle_diff = object_angle - tf2::getYaw(odometry_->pose.pose.orientation);
-      
+
       // 障害物が回避範囲内に入った場合
-      if (current_steering_ < 4.5 && current_steering_ > -4.5) {
+      if (current_steering_ < 2.0 && current_steering_ > -2.0) { //4.5なら避けれる
         if (object_distance < object_radius_sum && object_distance > object_radius + 0.4) {
           object_detected = true;  // 障害物検知フラグ
           //物体が前方にあるとき
@@ -155,21 +159,21 @@ void SimplePurePursuit::onTimer()
     }
 
     // 初めて障害物を検知した場合にis_startをtrueに設定
-    if (object_detected && !is_start) {
+    if (object_detected && current_velocity_ < 0.02) {
       is_start = true;
+      current_x = odometry_->pose.pose.position.x;
+      current_y = odometry_->pose.pose.position.y;
+      is_wall = true;
     }
 
     // 速度が0で障害物検知後の壁回避動作
-    if (current_velocity_ < 0.1 && is_start) {
-      static double current_x = odometry_->pose.pose.position.x;
-      static double current_y = odometry_->pose.pose.position.y;
-      static bool is_wall = true;
-
-      if (is_wall && std::hypot(current_x - odometry_->pose.pose.position.x, current_y - odometry_->pose.pose.position.y) < 2.0) {
-        gear_cmd.command = 20;  // 左に壁にぶつかったとき，ハンドルを右に切る
+    if (is_wall) {
+      if (std::hypot(current_x - odometry_->pose.pose.position.x, current_y - odometry_->pose.pose.position.y) < 2.0) {
+        gear_cmd.command = 21;  // バックギア
         cmd.longitudinal.acceleration = 3.0;
       } else {
         is_wall = false;
+        gear_cmd.command = 2;  // 前進ギア
       }
     }
   }
@@ -177,6 +181,7 @@ void SimplePurePursuit::onTimer()
   pub_cmd_->publish(cmd);
   pub_gear_->publish(gear_cmd);
 }
+
 
 
 bool SimplePurePursuit::subscribeMessageAvailable()
