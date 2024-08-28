@@ -10,6 +10,8 @@
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <optional>
 #include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/int32.hpp>
+
 namespace simple_pure_pursuit {
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
 using autoware_auto_planning_msgs::msg::Trajectory;
@@ -19,6 +21,7 @@ using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Twist;
 using nav_msgs::msg::Odometry;
 using std_msgs::msg::Float64MultiArray;
+using std_msgs::msg::Int32;
 class SimplePurePursuit : public rclcpp::Node {
  public:
   explicit SimplePurePursuit();
@@ -27,6 +30,7 @@ class SimplePurePursuit : public rclcpp::Node {
   rclcpp::Subscription<Trajectory>::SharedPtr sub_trajectory_;
   rclcpp::Subscription<Float64MultiArray>::SharedPtr sub_objects_;
   rclcpp::Subscription<SteeringReport>::SharedPtr sub_steering_;
+  rclcpp::Subscription<Int32>::SharedPtr sub_is_pitstop_;
   // publishers
   rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_cmd_;
   // timer
@@ -35,6 +39,7 @@ class SimplePurePursuit : public rclcpp::Node {
   Trajectory::SharedPtr trajectory_;
   Odometry::SharedPtr odometry_;
   Float64MultiArray::SharedPtr objects_;
+  Int32::SharedPtr is_pitstop_;
 
   double current_steering_;
 

@@ -5,7 +5,7 @@ GoalPosePublisher::GoalPosePublisher() : Node("goal_pose_publisher")
     const auto qos = rclcpp::QoS(rclcpp::KeepLast(10)).reliable();
     ekf_trigger_client_ = this->create_client<std_srvs::srv::SetBool>("/localization/trigger_node");
     goal_publisher_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("/planning/mission_planning/goal", qos);
-    is_pit_publisher_ = this->create_publisher<std_msgs::msg::Bool>("is_pit",1);
+    is_pit_publisher_ = this->create_publisher<std_msgs::msg::Int32>("is_pit",1);
     route_state_subscriber_ = this->create_subscription<autoware_adapi_v1_msgs::msg::RouteState>(
         "/planning/mission_planning/route_state",
         rclcpp::QoS(rclcpp::KeepLast(10)).reliable().transient_local(),
@@ -150,8 +150,8 @@ void GoalPosePublisher::odometry_callback(const nav_msgs::msg::Odometry::SharedP
         goal_pose->pose = half_goal_position_;
         goal_publisher_->publish(*goal_pose);
 
-        auto is_pit_msg = std_msgs::msg::Bool();
-        is_pit_msg.data = false;
+        auto is_pit_msg = std_msgs::msg::Int32();
+        is_pit_msg.data = 1;
         is_pit_publisher_->publish(is_pit_msg);
         RCLCPP_INFO(this->get_logger(), "Publishing half goal pose for loop");
         half_goal_pose_published_ = true;
@@ -167,8 +167,8 @@ void GoalPosePublisher::odometry_callback(const nav_msgs::msg::Odometry::SharedP
         goal_pose->pose = goal_position_;
         goal_publisher_->publish(*goal_pose);
 
-        auto is_pit_msg = std_msgs::msg::Bool();
-        is_pit_msg.data = false;
+        auto is_pit_msg = std_msgs::msg::Int32();
+        is_pit_msg.data = 0;
         is_pit_publisher_->publish(is_pit_msg);
         RCLCPP_INFO(this->get_logger(), "Publishing goal pose for loop");
         half_goal_pose_published_ = false;
@@ -185,8 +185,8 @@ void GoalPosePublisher::odometry_callback(const nav_msgs::msg::Odometry::SharedP
         goal_pose->pose = pit_stop_goal_position_;
         goal_publisher_->publish(*goal_pose);
 
-        auto is_pit_msg = std_msgs::msg::Bool();
-        is_pit_msg.data = true;
+        auto is_pit_msg = std_msgs::msg::Int32();
+        is_pit_msg.data = 2;
         is_pit_publisher_->publish(is_pit_msg);
 
         RCLCPP_INFO(this->get_logger(), "Publishing pitstop pose for loop");
@@ -201,8 +201,8 @@ void GoalPosePublisher::odometry_callback(const nav_msgs::msg::Odometry::SharedP
         goal_pose->pose = half_goal_position_;
         goal_publisher_->publish(*goal_pose);
 
-        auto is_pit_msg = std_msgs::msg::Bool();
-        is_pit_msg.data = false;
+        auto is_pit_msg = std_msgs::msg::Int32();
+        is_pit_msg.data = 1;
         is_pit_publisher_->publish(is_pit_msg);
         RCLCPP_INFO(this->get_logger(), "Publishing half goal pose for loop");
 

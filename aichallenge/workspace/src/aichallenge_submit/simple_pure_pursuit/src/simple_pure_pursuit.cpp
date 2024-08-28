@@ -39,7 +39,9 @@ SimplePurePursuit::SimplePurePursuit()
   sub_steering_ = create_subscription<SteeringReport>(
     "input/steering", 10,
     [this](const SteeringReport::SharedPtr msg) { current_steering_ = msg->steering_tire_angle; });
-  
+  sub_is_pitstop_= create_subscription<Int32>(
+    "input/is_pitstop", 1, [this](const Int32::SharedPtr msg) { is_pitstop_ = msg; });
+
   using namespace std::literals::chrono_literals;
   timer_ =
     rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
@@ -72,7 +74,7 @@ void SimplePurePursuit::onTimer()
   if (closet_traj_point_idx == trajectory_->points.size() - 1 ||
       trajectory_->points.size() <= minimum_trj_point_size_) {
     cmd.longitudinal.speed = 0.0;
-    cmd.longitudinal.acceleration = -25.0;
+    cmd.longitudinal.acceleration = -30.0;
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "reached to the goal");
   } else {
     // get closest trajectory point from current position
