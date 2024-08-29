@@ -1,0 +1,35 @@
+running egg_info
+creating ../../../../build/casadi_planner/casadi_planner.egg-info
+writing ../../../../build/casadi_planner/casadi_planner.egg-info/PKG-INFO
+writing dependency_links to ../../../../build/casadi_planner/casadi_planner.egg-info/dependency_links.txt
+writing entry points to ../../../../build/casadi_planner/casadi_planner.egg-info/entry_points.txt
+writing requirements to ../../../../build/casadi_planner/casadi_planner.egg-info/requires.txt
+writing top-level names to ../../../../build/casadi_planner/casadi_planner.egg-info/top_level.txt
+writing manifest file '../../../../build/casadi_planner/casadi_planner.egg-info/SOURCES.txt'
+reading manifest file '../../../../build/casadi_planner/casadi_planner.egg-info/SOURCES.txt'
+writing manifest file '../../../../build/casadi_planner/casadi_planner.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /aichallenge/build/casadi_planner/build
+creating /aichallenge/build/casadi_planner/build/lib
+creating /aichallenge/build/casadi_planner/build/lib/casadi_planner
+copying casadi_planner/casadi_planner.py -> /aichallenge/build/casadi_planner/build/lib/casadi_planner
+copying casadi_planner/__init__.py -> /aichallenge/build/casadi_planner/build/lib/casadi_planner
+running install
+running install_lib
+creating /aichallenge/install/casadi_planner/lib/python3.10/site-packages/casadi_planner
+copying /aichallenge/build/casadi_planner/build/lib/casadi_planner/casadi_planner.py -> /aichallenge/install/casadi_planner/lib/python3.10/site-packages/casadi_planner
+copying /aichallenge/build/casadi_planner/build/lib/casadi_planner/__init__.py -> /aichallenge/install/casadi_planner/lib/python3.10/site-packages/casadi_planner
+byte-compiling /aichallenge/install/casadi_planner/lib/python3.10/site-packages/casadi_planner/casadi_planner.py to casadi_planner.cpython-310.pyc
+byte-compiling /aichallenge/install/casadi_planner/lib/python3.10/site-packages/casadi_planner/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /aichallenge/install/casadi_planner/share/ament_index
+creating /aichallenge/install/casadi_planner/share/ament_index/resource_index
+creating /aichallenge/install/casadi_planner/share/ament_index/resource_index/packages
+copying resource/casadi_planner -> /aichallenge/install/casadi_planner/share/ament_index/resource_index/packages
+copying package.xml -> /aichallenge/install/casadi_planner/share/casadi_planner
+running install_egg_info
+Copying ../../../../build/casadi_planner/casadi_planner.egg-info to /aichallenge/install/casadi_planner/lib/python3.10/site-packages/casadi_planner-0.0.0-py3.10.egg-info
+running install_scripts
+Installing casadi_planner script to /aichallenge/install/casadi_planner/lib/casadi_planner
+writing list of installed files to '/aichallenge/build/casadi_planner/install.log'

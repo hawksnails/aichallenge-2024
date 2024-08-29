@@ -1,0 +1,3 @@
+[console_scripts]
+casadi_planner = casadi_planner.casadi_planner:main
+
