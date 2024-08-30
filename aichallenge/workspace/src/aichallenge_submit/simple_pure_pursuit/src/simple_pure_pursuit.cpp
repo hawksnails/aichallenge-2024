@@ -1,10 +1,7 @@
 #include "simple_pure_pursuit/simple_pure_pursuit.hpp"
-
 #include <motion_utils/motion_utils.hpp>
 #include <tier4_autoware_utils/tier4_autoware_utils.hpp>
-
 #include <tf2/utils.h>
-
 #include <algorithm>
 #include <iostream> // Added for std::cout
 
