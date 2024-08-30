@@ -36,6 +36,8 @@ class SimplePurePursuit : public rclcpp::Node {
   rclcpp::Subscription<Trajectory>::SharedPtr sub_trajectory_;
   rclcpp::Subscription<Float64MultiArray>::SharedPtr sub_objects_;
   rclcpp::Subscription<SteeringReport>::SharedPtr sub_steering_;
+  rclcpp::Subscription<Int32>::SharedPtr sub_is_pitstop_;
+  rclcpp::Subscription<VelocityReport>::SharedPtr sub_velocity_;
   // publishers
   rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_cmd_;
   rclcpp::Publisher<GearCommand>::SharedPtr pub_gear_;
