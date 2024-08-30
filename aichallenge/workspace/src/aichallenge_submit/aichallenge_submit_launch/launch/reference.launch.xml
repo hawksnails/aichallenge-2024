@@ -215,7 +215,9 @@
     <remap from="input/trajectory" to="/planning/scenario_planning/trajectory"/>
     <remap from="input/objects" to="/aichallenge/objects"/>
     <remap from="input/steering" to="/vehicle/status/steering_status"/>
+    <remap from="input/velocity" to="/vehicle/status/velocity_status"/>
     <remap from="output/control_cmd" to="/control/command/control_cmd"/>
+    <remap from="output/gear_cmd" to="/control/command/gear_cmd"/>
   </node>
 
   <!-- Map -->

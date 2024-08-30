@@ -1,10 +1,7 @@
 #include "simple_pure_pursuit/simple_pure_pursuit.hpp"
-
 #include <motion_utils/motion_utils.hpp>
 #include <tier4_autoware_utils/tier4_autoware_utils.hpp>
-
 #include <tf2/utils.h>
-
 #include <algorithm>
 #include <iostream> // Added for std::cout
 
@@ -23,12 +20,15 @@ SimplePurePursuit::SimplePurePursuit()
   lookahead_min_distance_(declare_parameter<float>("lookahead_min_distance", 1.0)),
   speed_proportional_gain_(declare_parameter<float>("speed_proportional_gain", 1.0)),
   use_external_target_vel_(declare_parameter<bool>("use_external_target_vel", false)),
-  external_target_vel_(declare_parameter<float>("external_target_vel", 0.0))
+  external_target_vel_(declare_parameter<float>("external_target_vel", 0.0)),
+  is_start(false)
 {
   this->declare_parameter("minimum_trj_point_size", 16);
   minimum_trj_point_size_ = this->get_parameter("minimum_trj_point_size").as_int();
   
   pub_cmd_ = create_publisher<AckermannControlCommand>("output/control_cmd", 1);
+  pub_gear_ = create_publisher<GearCommand>("/control/command/gear_cmd", 10);
+  
   
   sub_kinematics_ = create_subscription<Odometry>(
     "input/kinematics", 1, [this](const Odometry::SharedPtr msg) { odometry_ = msg; });
@@ -39,11 +39,10 @@ SimplePurePursuit::SimplePurePursuit()
   sub_steering_ = create_subscription<SteeringReport>(
     "input/steering", 10,
     [this](const SteeringReport::SharedPtr msg) { current_steering_ = msg->steering_tire_angle; });
-  sub_is_pitstop_= create_subscription<Int32>(
-    "/aichallenge/pitstop/is_pit", 1, [this](const Int32::SharedPtr msg) { is_pitstop_ = msg; });
-  sub_velocity_= create_subscription<VelocityReport>(
-    "/vehicle/status/velocity_status", 1, [this](const VelocityReport::SharedPtr msg) { velocity_ = msg; });
-
+  sub_velocity_ = create_subscription<VelocityReport>(
+    "input/velocity", 10,
+    [this](const VelocityReport::SharedPtr msg) { current_velocity_ = msg->longitudinal_velocity; });
+  
   using namespace std::literals::chrono_literals;
   timer_ =
     rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
@@ -64,6 +63,14 @@ AckermannControlCommand zeroAckermannControlCommand(rclcpp::Time stamp)
   return cmd;
 }
 
+GearCommand zeroGearCommand(rclcpp::Time stamp)
+{
+  GearCommand gear_cmd;
+  gear_cmd.stamp = stamp;
+  gear_cmd.command = GearCommand::DRIVE;
+  return gear_cmd;
+}
+
 void SimplePurePursuit::onTimer()
 {
   // check data
@@ -72,7 +79,7 @@ void SimplePurePursuit::onTimer()
   }
 
   size_t closet_traj_point_idx = findNearestIndex(trajectory_->points, odometry_->pose.pose.position);
-  
+
   // publish zero command
   AckermannControlCommand cmd = zeroAckermannControlCommand(get_clock()->now());
   double target_longitudinal_vel = 0.0;  
@@ -158,8 +165,7 @@ void SimplePurePursuit::onTimer()
       double object_distance = std::hypot(object_x - odometry_->pose.pose.position.x, object_y - odometry_->pose.pose.position.y);
       double object_angle = std::atan2(object_y - odometry_->pose.pose.position.y, object_x - odometry_->pose.pose.position.x);
 
-      double object_radius_sum = object_radius + 4.2;
-      //車体から見た物体の角度
+      double object_radius_sum = object_radius + 4.5;
       double object_angle_diff = object_angle - tf2::getYaw(odometry_->pose.pose.orientation);
       
       if (current_steering_ < 1.0){
@@ -183,7 +189,10 @@ void SimplePurePursuit::onTimer()
   }
   
   pub_cmd_->publish(cmd);
+  pub_gear_->publish(gear_cmd);
 }
+
+
 
 bool SimplePurePursuit::subscribeMessageAvailable()
 {
