@@ -17,6 +17,8 @@
   <!-- System -->
   <arg name="system_run_mode" default="online" description="run mode in system"/>
 
+  <!-- <node pkg="path_to_trajectory" exec="run.bash" name="my_ros2_node" output="screen" /> -->
+
   <!-- Global parameters -->
   <group scoped="false">
     <include file="$(find-pkg-share global_parameter_loader)/launch/global_params.launch.py">
