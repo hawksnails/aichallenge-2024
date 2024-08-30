@@ -43,6 +43,8 @@ void PathToTrajectory::avoidObstacles(Trajectory &trajectory) {
     return;
   }
 
+  std::cout << "avoidObstacles: " << sizeof(trajectory.points) << std::endl;
+
   constexpr double SAFETY_DISTANCE = 4.0; // Increased safety distance in meters
   constexpr double MAX_STEERING_OFFSET = 3.4; // Maximum steering offset in meters
 

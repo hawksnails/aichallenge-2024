@@ -40,6 +40,7 @@ class PathToTrajectory : public rclcpp::Node {
   rclcpp::Publisher<Trajectory>::SharedPtr pub_;
   rclcpp::Subscription<MarkerArray>::SharedPtr sub_objects_;
   MarkerArray::SharedPtr objects_;
+  Trajectory pre_tra;
 };
 
 #endif  // PATH_TO_TRAJECTORY__PATH_TO_TRAJECTORY_HPP_
