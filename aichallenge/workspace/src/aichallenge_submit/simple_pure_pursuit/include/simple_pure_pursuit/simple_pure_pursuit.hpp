@@ -60,6 +60,7 @@ class SimplePurePursuit : public rclcpp::Node {
  private:
   void onTimer();
   bool subscribeMessageAvailable();
+  bool is_decelerated_pitstop;
 };
 }  // namespace simple_pure_pursuit
 #endif  // SIMPLE_PURE_PURSUIT_HPP_

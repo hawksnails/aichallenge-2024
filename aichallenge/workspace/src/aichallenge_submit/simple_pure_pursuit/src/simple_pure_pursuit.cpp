@@ -49,6 +49,7 @@ SimplePurePursuit::SimplePurePursuit()
     rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
 
   to_goal = 0;
+  is_decelerated_pitstop = false;
 }
 
 AckermannControlCommand zeroAckermannControlCommand(rclcpp::Time stamp)
@@ -80,56 +81,72 @@ void SimplePurePursuit::onTimer()
     to_goal = is_pitstop_ ->data;
   }
 
-  // double cur_vel = sqrt(pow(velocity_->longitudinal_velocity, 2) + pow(velocity_->lateral_velocity, 2)) * 3.6; // mps -> kmh
-  // double left_point = (double) trajectory_->points.size();
-  if (to_goal == 2 && trajectory_->points.size() <= 16){
+  double cur_vel = sqrt(pow(velocity_->longitudinal_velocity, 2) + pow(velocity_->lateral_velocity, 2)) * 3.6; // mps -> kmh
+  double left_point = (double) trajectory_->points.size();
+
+  if(to_goal != 2) {
+    is_decelerated_pitstop = false;
+  }
+
+  // if (to_goal == 2 && (left_point <= 16.0 * cur_vel * cur_vel / 20.5 / 20.5 || is_decelerated_pitstop == true)){
+  if (to_goal == 2 && left_point <= 16){
+    //stop for pitstop
+    is_decelerated_pitstop = true;
+    std::cout << "cur vel: " << cur_vel << std::endl;
+    std::cout << "Pitstop left point: " << left_point << std::endl;
+    std::cout << "Right-val: " << 16.0 * cur_vel * cur_vel / 19.0 / 19.0 << std::endl;
     cmd.longitudinal.speed = 0.0;
     cmd.longitudinal.acceleration = -30.0;
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "reached to the pitstop");
   } else if (to_goal == 3 && (closet_traj_point_idx == trajectory_->points.size() - 1 ||
     trajectory_->points.size() <= 5)) {
+    // stop for finish the race
     cmd.longitudinal.speed = 0.0;
     cmd.longitudinal.acceleration = -30.0;
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "reached to the goal");
-  } else {
-    // get closest trajectory point from current position
-    TrajectoryPoint closet_traj_point = trajectory_->points.at(closet_traj_point_idx);
+  } 
 
-    // calc longitudinal speed and acceleration
-    target_longitudinal_vel = 
-        use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
-    double current_longitudinal_vel = odometry_->twist.twist.linear.x;
+  // get closest trajectory point from current position
+  TrajectoryPoint closet_traj_point = trajectory_->points.at(closet_traj_point_idx);
+
+  // calc longitudinal speed and acceleration
+  target_longitudinal_vel = 
+      use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
+  double current_longitudinal_vel = odometry_->twist.twist.linear.x;
+  if(!is_decelerated_pitstop) {
     cmd.longitudinal.speed = target_longitudinal_vel;
     cmd.longitudinal.acceleration =
-      speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+    speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+  }
+ 
+  // calc lateral control
+  //// calc lookahead distance
+  double lookahead_distance = lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
+  //// calc center coordinate of rear wheel
+  double rear_x = odometry_->pose.pose.position.x -
+                  wheel_base_ / 2.0 * std::cos(odometry_->pose.pose.orientation.z);
+  double rear_y = odometry_->pose.pose.position.y -
+                  wheel_base_ / 2.0 * std::sin(odometry_->pose.pose.orientation.z);
+  //// search lookahead point
+  auto lookahead_point_itr = std::find_if(
+    trajectory_->points.begin() + closet_traj_point_idx, trajectory_->points.end(),
+    [&](const TrajectoryPoint & point) {
+      return std::hypot(point.pose.position.x - rear_x, point.pose.position.y - rear_y) >=
+              lookahead_distance;
+    });
+  if (lookahead_point_itr == trajectory_->points.end()) {
+    lookahead_point_itr = trajectory_->points.end() - 1;
+  }
+  double lookahead_point_x = lookahead_point_itr->pose.position.x;
+  double lookahead_point_y = lookahead_point_itr->pose.position.y;
 
-    // calc lateral control
-    //// calc lookahead distance
-    double lookahead_distance = lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
-    //// calc center coordinate of rear wheel
-    double rear_x = odometry_->pose.pose.position.x -
-                    wheel_base_ / 2.0 * std::cos(odometry_->pose.pose.orientation.z);
-    double rear_y = odometry_->pose.pose.position.y -
-                    wheel_base_ / 2.0 * std::sin(odometry_->pose.pose.orientation.z);
-    //// search lookahead point
-    auto lookahead_point_itr = std::find_if(
-      trajectory_->points.begin() + closet_traj_point_idx, trajectory_->points.end(),
-      [&](const TrajectoryPoint & point) {
-        return std::hypot(point.pose.position.x - rear_x, point.pose.position.y - rear_y) >=
-                lookahead_distance;
-      });
-    if (lookahead_point_itr == trajectory_->points.end()) {
-      lookahead_point_itr = trajectory_->points.end() - 1;
-    }
-    double lookahead_point_x = lookahead_point_itr->pose.position.x;
-    double lookahead_point_y = lookahead_point_itr->pose.position.y;
+  // calc steering angle for lateral control
+  double alpha = std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) -
+                  tf2::getYaw(odometry_->pose.pose.orientation);
+  cmd.lateral.steering_tire_angle =
+    std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance);
 
-    // calc steering angle for lateral control
-    double alpha = std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) -
-                    tf2::getYaw(odometry_->pose.pose.orientation);
-    cmd.lateral.steering_tire_angle =
-      std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance);
-
+  if(!is_decelerated_pitstop) {
     for (size_t i = 0; i < objects_->data.size(); i += 4) {
       if(i == 12 || i == 16 || i == 20 || i == 24) {
         continue;
@@ -163,6 +180,7 @@ void SimplePurePursuit::onTimer()
       std::cout << "Object x: " << object_x << " Object y: " << object_y << std::endl;
     }
   }
+  
   pub_cmd_->publish(cmd);
 }
 
