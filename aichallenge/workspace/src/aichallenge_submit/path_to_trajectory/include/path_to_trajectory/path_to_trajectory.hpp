@@ -18,12 +18,16 @@
 #include "autoware_auto_planning_msgs/msg/trajectory.hpp"
 #include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include <std_msgs/msg/float64_multi_array.hpp>
+using std_msgs::msg::Float64MultiArray;
 
 class PathToTrajectory : public rclcpp::Node {
  public:
   using PathWithLaneId = autoware_auto_planning_msgs::msg::PathWithLaneId;
   using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
   using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
+  rclcpp::Subscription<Float64MultiArray>::SharedPtr sub_objects_;
+  Float64MultiArray::SharedPtr objects_;
 
  public:
   PathToTrajectory();

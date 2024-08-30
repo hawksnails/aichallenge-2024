@@ -20,6 +20,8 @@ PathToTrajectory::PathToTrajectory() : Node("path_to_trajectory_node") {
   pub_ = this->create_publisher<Trajectory>("output", 1);
   sub_ = this->create_subscription<PathWithLaneId>(
       "input", 1, std::bind(&PathToTrajectory::callback, this, _1));
+  sub_objects_ = create_subscription<Float64MultiArray>(
+    "input/objects", 1, [this](const Float64MultiArray::SharedPtr msg) { objects_ = msg; });
 }
 
 void PathToTrajectory::callback(const PathWithLaneId::SharedPtr msg) {
