@@ -1,0 +1,11 @@
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch dev/40kmh
+# Your branch is up to date with 'origin/dev/40kmh'.
+#
+# Changes to be committed:
+#	modified:   aichallenge/workspace/src/aichallenge_system/aichallenge_system_launch/config/autoware.rviz
+#

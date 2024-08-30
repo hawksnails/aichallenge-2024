@@ -27,7 +27,7 @@ SimplePurePursuit::SimplePurePursuit()
   is_start(false)
 {
   pub_cmd_ = create_publisher<AckermannControlCommand>("output/control_cmd", 1);
-  pub_gear_ = create_publisher<GearCommand>("output/gear_cmd", 1);
+  pub_gear_ = create_publisher<GearCommand>("/control/command/gear_cmd", 10);
   
   
   sub_kinematics_ = create_subscription<Odometry>(
@@ -45,7 +45,7 @@ SimplePurePursuit::SimplePurePursuit()
   
   using namespace std::literals::chrono_literals;
   timer_ =
-    rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
+    rclcpp::create_timer(this, get_clock(), 10ms, std::bind(&SimplePurePursuit::onTimer, this));
 }
 
 AckermannControlCommand zeroAckermannControlCommand(rclcpp::Time stamp)
@@ -64,7 +64,7 @@ GearCommand zeroGearCommand(rclcpp::Time stamp)
 {
   GearCommand gear_cmd;
   gear_cmd.stamp = stamp;
-  gear_cmd.command = 2;
+  gear_cmd.command = GearCommand::DRIVE;
   return gear_cmd;
 }
 
@@ -140,7 +140,7 @@ void SimplePurePursuit::onTimer()
       double object_angle_diff = object_angle - tf2::getYaw(odometry_->pose.pose.orientation);
 
       // 障害物が回避範囲内に入った場合
-      if (current_steering_ < 4.5 && current_steering_ > -4.5) { //4.5なら避けれる　２．０は際どい
+      if (current_steering_ < 2.0 && current_steering_ > -2.0) { //4.5なら避けれる　２．０は際どい
         if (object_distance < object_radius_sum && object_distance > object_radius + 0.4) {
           object_detected = true;  // 障害物検知フラグ
           //物体が前方にあるとき
@@ -165,13 +165,15 @@ void SimplePurePursuit::onTimer()
       current_x = odometry_->pose.pose.position.x;
       current_y = odometry_->pose.pose.position.y;
       is_wall = true;
-      gear_cmd.command = GearCommand::REVERSE;  // リバースギア
+      gear_cmd.command = 19;  // リバースギア
       sutea = current_steering_;
     }else if ( object_detected && current_velocity_ < 0.02 && is_wall){
       if(sutea < 0){
         cmd.lateral.steering_tire_angle = 2.0;
+        is_wall = true;
       } else {
         cmd.lateral.steering_tire_angle = -2.0;
+        is_wall = true;
       }
     }
 
@@ -179,7 +181,8 @@ void SimplePurePursuit::onTimer()
     if (is_wall) {
       if (std::hypot(current_x - odometry_->pose.pose.position.x, current_y - odometry_->pose.pose.position.y) < 2.0) {
         cmd.longitudinal.speed = -3.0;
-        cmd.longitudinal.acceleration = -3.0;
+        cmd.longitudinal.acceleration = 3.0;
+        gear_cmd.command = GearCommand::REVERSE;
       } else {
         is_wall = false;
         gear_cmd.command = GearCommand::DRIVE;  // 前進ギア
