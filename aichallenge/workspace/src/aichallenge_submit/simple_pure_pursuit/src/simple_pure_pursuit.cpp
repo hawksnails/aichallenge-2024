@@ -171,7 +171,7 @@ void SimplePurePursuit::onTimer()
       if(sutea < 0){
         cmd.lateral.steering_tire_angle = 2.0;
       } else {
-        cmd.lateral.steering_tire_angle = 2.0;
+        cmd.lateral.steering_tire_angle = -2.0;
       }
     }
 
