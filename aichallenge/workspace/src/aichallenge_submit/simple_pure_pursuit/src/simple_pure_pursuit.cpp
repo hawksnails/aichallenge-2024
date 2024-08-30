@@ -89,7 +89,8 @@ void SimplePurePursuit::onTimer()
   }
 
   // if (to_goal == 2 && (left_point <= 16.0 * cur_vel * cur_vel / 20.5 / 20.5 || is_decelerated_pitstop == true)){
-  if (to_goal == 2 && left_point <= 16){
+  if (to_goal == 2 && ((left_point <= 16 && cur_vel < 25.0) 
+  || (left_point <= 19 && cur_vel >= 25.0))){
     //stop for pitstop
     is_decelerated_pitstop = true;
     std::cout << "cur vel: " << cur_vel << std::endl;
