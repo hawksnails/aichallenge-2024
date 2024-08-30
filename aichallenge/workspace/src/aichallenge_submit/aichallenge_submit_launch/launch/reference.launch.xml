@@ -195,7 +195,7 @@
       </group> <!-- lane_driving -->
 
       <!-- Customizable -->
-      <node pkg="path_to_trajectory" exec="path_to_trajectory_node" name="path_to_trajectory" output="screen">
+      <node pkg="casadi_planner" exec="casadi_planner_node" name="casadi_planner" output="screen">
         <remap from="input" to="/planning/scenario_planning/lane_driving/behavior_planning/path_with_lane_id"/>
         <remap from="input/objects" to="/aichallenge/objetcts"/>
         <remap from="output" to="/planning/scenario_planning/trajectory"/>
