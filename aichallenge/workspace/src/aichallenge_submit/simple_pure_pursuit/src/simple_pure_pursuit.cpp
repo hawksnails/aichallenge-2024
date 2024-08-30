@@ -34,8 +34,8 @@ SimplePurePursuit::SimplePurePursuit()
     "input/kinematics", 1, [this](const Odometry::SharedPtr msg) { odometry_ = msg; });
   sub_trajectory_ = create_subscription<Trajectory>(
     "input/trajectory", 1, [this](const Trajectory::SharedPtr msg) { trajectory_ = msg; });
-  sub_objects_ = create_subscription<Float64MultiArray>(
-    "input/objects", 1, [this](const Float64MultiArray::SharedPtr msg) { objects_ = msg; });
+  // sub_objects_ = create_subscription<Float64MultiArray>(
+  //   "input/objects", 1, [this](const Float64MultiArray::SharedPtr msg) { objects_ = msg; });
   sub_steering_ = create_subscription<SteeringReport>(
     "input/steering", 10,
     [this](const SteeringReport::SharedPtr msg) { current_steering_ = msg->steering_tire_angle; });
@@ -176,10 +176,10 @@ bool SimplePurePursuit::subscribeMessageAvailable()
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "Trajectory is not available");
     return false;
   }
-  if (!objects_) {
-    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "Objects are not available");
-    return false;
-  }
+  // if (!objects_) {
+  //   RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "Objects are not available");
+  //   return false;
+  // }
   if (!velocity_) {
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "Velocity is  not available");
     return false;
