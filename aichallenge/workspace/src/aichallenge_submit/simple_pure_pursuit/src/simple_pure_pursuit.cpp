@@ -78,10 +78,11 @@ void SimplePurePursuit::onTimer()
   AckermannControlCommand cmd = zeroAckermannControlCommand(get_clock()->now());
   GearCommand gear_cmd = zeroGearCommand(get_clock()->now());
 
-  static double current_x = 0.0;
-  static double current_y = 0.0;
-  static bool is_wall = false;  // 壁にぶつかったことを検知するフラグ
-  static double sutea = 0.0;
+  double current_x = 0.0;
+  double current_y = 0.0;
+  bool is_wall = false;  // 壁にぶつかったことを検知するフラグ
+  double sutea = 0.0;
+  bool object_detected = false;
 
   if (
     (closet_traj_point_idx == trajectory_->points.size() - 1) ||
@@ -89,7 +90,7 @@ void SimplePurePursuit::onTimer()
     cmd.longitudinal.speed = 0.0;
     cmd.longitudinal.acceleration = -10.0;
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "reached to the goal");
-  } else {
+  } else if(!object_detected || current_velocity_ > 0.3) {
     // get closest trajectory point from current position
     TrajectoryPoint closet_traj_point = trajectory_->points.at(closet_traj_point_idx);
 
@@ -123,9 +124,10 @@ void SimplePurePursuit::onTimer()
     // calculate steering angle for lateral control
     double alpha = std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) - tf2::getYaw(odometry_->pose.pose.orientation);
     cmd.lateral.steering_tire_angle = std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance);
+    gear_cmd.command = GearCommand::DRIVE;
 
     // Object avoidance
-    bool object_detected = false;
+    if(current_velocity_ > 6){
     for (size_t i = 0; i < objects_->data.size(); i += 4) {
       double object_x = objects_->data[i];
       double object_y = objects_->data[i + 1];
@@ -137,7 +139,7 @@ void SimplePurePursuit::onTimer()
       double object_angle_diff = object_angle - tf2::getYaw(odometry_->pose.pose.orientation);
 
       // 障害物が回避範囲内に入った場合
-      if (current_steering_ < 2.0 && current_steering_ > -2.0) { //4.5なら避けれる　２．０は際どい
+      if (current_steering_ < 3.0 && current_steering_ > -3.0) { //4.5なら避けれる　２．０は際どい
         if (object_distance < object_radius_sum && object_distance > object_radius + 0.4) {
           object_detected = true;  // 障害物検知フラグ
           //物体が前方にあるとき
@@ -152,40 +154,34 @@ void SimplePurePursuit::onTimer()
           }
         }
       }
-
       std::cout << "Object x: " << object_x << " Object y: " << object_y << std::endl;
     }
-
-    // 初めて障害物を検知した場合にis_startをtrueに設定
-    if (object_detected && current_velocity_ < 0.3 && !is_wall) {
+    }
+  } else if (object_detected && current_velocity_ < 0.3 && !is_wall) {
       is_start = true;
       current_x = odometry_->pose.pose.position.x;
       current_y = odometry_->pose.pose.position.y;
       is_wall = true;
-      gear_cmd.command = 19;  // リバースギア
+      gear_cmd.command = GearCommand::REVERSE;
       sutea = current_steering_;
-    }else if ( object_detected && current_velocity_ < 0.02 && is_wall){
+    }else if (object_detected && is_wall && std::hypot(current_x - odometry_->pose.pose.position.x, current_y - odometry_->pose.pose.position.y) < 2.0){
       if(sutea < 0){
-        cmd.lateral.steering_tire_angle = 2.0;
-        is_wall = true;
-      } else {
-        cmd.lateral.steering_tire_angle = -2.0;
-        is_wall = true;
-      }
-    }
-
-    // 速度が0で障害物検知後の壁回避動作
-    if (is_wall) {
-      if (std::hypot(current_x - odometry_->pose.pose.position.x, current_y - odometry_->pose.pose.position.y) < 2.0) {
         cmd.longitudinal.speed = -3.0;
+        cmd.lateral.steering_tire_angle = 2.0;
         cmd.longitudinal.acceleration = 3.0;
         gear_cmd.command = GearCommand::REVERSE;
+        is_wall = true;
       } else {
-        is_wall = false;
-        gear_cmd.command = GearCommand::DRIVE;  // 前進ギア
+        cmd.longitudinal.speed = -3.0;
+        cmd.lateral.steering_tire_angle = -2.0;
+        cmd.longitudinal.acceleration = 3.0;
+        gear_cmd.command = GearCommand::REVERSE;
+        is_wall = true;
       }
+    } else{
+      gear_cmd.command = GearCommand::DRIVE;  // 前進ギア
+      is_wall = false;
     }
-  }
 
   pub_cmd_->publish(cmd);
   pub_gear_->publish(gear_cmd);

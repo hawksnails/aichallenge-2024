@@ -1,8 +1,8 @@
 {
     "files.associations": {
+        "cmath": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
-        "cmath": "cpp",
         "cstdarg": "cpp",
         "cstddef": "cpp",
         "cstdio": "cpp",
