@@ -18,20 +18,29 @@
 #include "autoware_auto_planning_msgs/msg/trajectory.hpp"
 #include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+
+using visualization_msgs::msg::MarkerArray;
 
 class PathToTrajectory : public rclcpp::Node {
  public:
   using PathWithLaneId = autoware_auto_planning_msgs::msg::PathWithLaneId;
   using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
   using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
+  using MarkerArray = visualization_msgs::msg::MarkerArray;
 
  public:
   PathToTrajectory();
 
  private:
   void callback(const PathWithLaneId::SharedPtr msg);
+  void avoidObstacles(Trajectory &trajectory);
+  void smoothTrajectory(Trajectory &trajectory);
   rclcpp::Subscription<PathWithLaneId>::SharedPtr sub_;
   rclcpp::Publisher<Trajectory>::SharedPtr pub_;
+  rclcpp::Subscription<MarkerArray>::SharedPtr sub_objects_;
+  MarkerArray::SharedPtr objects_;
+  Trajectory pre_tra;
 };
 
 #endif  // PATH_TO_TRAJECTORY__PATH_TO_TRAJECTORY_HPP_

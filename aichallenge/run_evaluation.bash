@@ -1,6 +1,7 @@
 #!/bin/bash
-# AWSIM_DIRECTORY=/aichallenge/simulator/AWSIM
-AWSIM_DIRECTORY=/aichallenge/simulator/AWSIM_GPU
+AWSIM_DIRECTORY=/aichallenge/simulator/AWSIM
+#AWSIM_DIRECTORY=/aichallenge/simulator/AWSIM_GPU
+
 # Move working directory
 OUTPUT_DIRECTORY=$(date +%Y%m%d-%H%M%S)
 cd /output || exit
