@@ -33,7 +33,7 @@ SimplePurePursuit::SimplePurePursuit()
 
   using namespace std::literals::chrono_literals;
   timer_ =
-    rclcpp::create_timer(this, get_clock(), 20ms, std::bind(&SimplePurePursuit::onTimer, this));
+    rclcpp::create_timer(this, get_clock(), 5ms, std::bind(&SimplePurePursuit::onTimer, this));
 }
 
 AckermannControlCommand zeroAckermannControlCommand(rclcpp::Time stamp)
@@ -78,10 +78,9 @@ void SimplePurePursuit::onTimer()
     double current_longitudinal_vel = odometry_->twist.twist.linear.x;
 
     cmd.longitudinal.speed = target_longitudinal_vel;
-    cmd.longitudinal.acceleration =
-      speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+    //cmd.longitudinal.acceleration =  speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
     std::cout << "cmd.longitudinal.acceleration: " << cmd.longitudinal.acceleration << std::endl;
-    // cmd.longitudinal.acceleration = 300;
+    cmd.longitudinal.acceleration = 500;
     
 
     // calc lateral control
