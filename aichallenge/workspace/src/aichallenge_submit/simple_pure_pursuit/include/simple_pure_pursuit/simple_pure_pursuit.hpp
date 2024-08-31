@@ -8,13 +8,16 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <optional>
+#include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 #include <rclcpp/rclcpp.hpp>
+
 
 namespace simple_pure_pursuit {
 
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_vehicle_msgs::msg::SteeringReport;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Twist;
 using nav_msgs::msg::Odometry;
@@ -26,6 +29,7 @@ class SimplePurePursuit : public rclcpp::Node {
   // subscribers
   rclcpp::Subscription<Odometry>::SharedPtr sub_kinematics_;
   rclcpp::Subscription<Trajectory>::SharedPtr sub_trajectory_;
+  rclcpp::Subscription<SteeringReport>::SharedPtr sub_steering_;
   
   // publishers
   rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_cmd_;
@@ -37,7 +41,7 @@ class SimplePurePursuit : public rclcpp::Node {
   Trajectory::SharedPtr trajectory_;
   Odometry::SharedPtr odometry_;
 
-
+  double current_steering_;
 
   // pure pursuit parameters
   const double wheel_base_;

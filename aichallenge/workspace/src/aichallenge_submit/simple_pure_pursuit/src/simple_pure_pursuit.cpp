@@ -30,10 +30,13 @@ SimplePurePursuit::SimplePurePursuit()
     "input/kinematics", 1, [this](const Odometry::SharedPtr msg) { odometry_ = msg; });
   sub_trajectory_ = create_subscription<Trajectory>(
     "input/trajectory", 1, [this](const Trajectory::SharedPtr msg) { trajectory_ = msg; });
+  sub_steering_ = create_subscription<SteeringReport>(
+    "/vehicle/status/steering_status", 10,
+    [this](const SteeringReport::SharedPtr msg) { current_steering_ = msg->steering_tire_angle; });
 
   using namespace std::literals::chrono_literals;
   timer_ =
-    rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
+    rclcpp::create_timer(this, get_clock(), 5ms, std::bind(&SimplePurePursuit::onTimer, this));
 }
 
 AckermannControlCommand zeroAckermannControlCommand(rclcpp::Time stamp)
@@ -75,10 +78,18 @@ void SimplePurePursuit::onTimer()
     double target_longitudinal_vel =
       use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
     double current_longitudinal_vel = odometry_->twist.twist.linear.x;
-
+    cmd.longitudinal.acceleration = speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
     cmd.longitudinal.speed = target_longitudinal_vel;
-    cmd.longitudinal.acceleration =
-      speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+    if (current_steering_ > 8.0){
+      cmd.longitudinal.acceleration = speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+    } else if (current_steering_ > 4.0){
+      cmd.longitudinal.acceleration = 80;
+    } else if (current_steering_ > 2.0){
+      cmd.longitudinal.acceleration = 100;
+    } else {
+      cmd.longitudinal.acceleration = 200;
+    }
+    
 
     // calc lateral control
     //// calc lookahead distance
