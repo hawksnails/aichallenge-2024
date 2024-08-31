@@ -102,7 +102,8 @@ void SimplePurePursuit::onTimer()
   }
 
   if (to_goal == 2 && ((left_point <= 16 && cur_vel < 25.0) 
-  || (left_point <= 19 && cur_vel >= 25.0))){
+  || (left_point <= 22 && cur_vel >= 27.0)
+  || (left_point <= 20 && cur_vel >= 25.0 && cur_vel < 27.0))){
     //stop for pitstop
     is_decelerated_pitstop = true;
     std::cout << "cur vel: " << cur_vel << std::endl;
@@ -192,6 +193,9 @@ void SimplePurePursuit::onTimer()
     // Object avoidance
     if(current_velocity_ > 6){
       for (size_t i = 0; i < objects_->data.size(); i += 4) {
+        if(i == 16) {
+          continue;
+        }
         double object_x = objects_->data[i];
         double object_y = objects_->data[i + 1];
         double object_radius = objects_->data[i + 3];
