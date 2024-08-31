@@ -7,7 +7,7 @@
   <arg name="vehicle_model" default="racing_kart"  description="vehicle model name"/>
   <arg name="sensor_model" description="sensor model name"/>
 
-  <!-- Optional parameters -->
+  <!-- Optional parameteしきい値rs -->
   <!-- Map -->
   <arg name="lanelet2_map_file" default="lanelet2_map.osm" description="lanelet2 map file name"/>
   <arg name="pointcloud_map_file" default="pointcloud_map.pcd" description="pointcloud map file name"/>
@@ -197,7 +197,7 @@
       <!-- Customizable -->
       <node pkg="path_to_trajectory" exec="path_to_trajectory_node" name="path_to_trajectory" output="screen">
         <remap from="input" to="/planning/scenario_planning/lane_driving/behavior_planning/path_with_lane_id"/>
-        <remap from"input/velocity" to="/vehicle/status/velocity_status"/>
+        <remap from="input/velocity" to="/vehicle/status/velocity_status"/>
         <remap from="output" to="/planning/scenario_planning/trajectory"/>
         
       </node>
