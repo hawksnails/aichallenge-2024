@@ -20,6 +20,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
+
 using visualization_msgs::msg::MarkerArray;
 
 class PathToTrajectory : public rclcpp::Node {
@@ -28,6 +29,7 @@ class PathToTrajectory : public rclcpp::Node {
   using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
   using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
   using MarkerArray = visualization_msgs::msg::MarkerArray;
+  
 
  public:
   PathToTrajectory();
