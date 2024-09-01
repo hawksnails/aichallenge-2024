@@ -78,11 +78,11 @@ void SimplePurePursuit::onTimer()
   AckermannControlCommand cmd = zeroAckermannControlCommand(get_clock()->now());
   GearCommand gear_cmd = zeroGearCommand(get_clock()->now());
 
-  double current_x = 0.0;
-  double current_y = 0.0;
-  bool is_wall = false;  // 壁にぶつかったことを検知するフラグ
-  double sutea = 0.0;
-  bool object_detected = false;
+  // static double current_x = 0.0;
+  // static double current_y = 0.0;
+  // static bool is_wall = false;  // 壁にぶつかったことを検知するフラグ
+  // static double sutea = 0.0;
+  // static bool object_detected = false;
 
   if (
     (closet_traj_point_idx == trajectory_->points.size() - 1) ||
@@ -90,7 +90,8 @@ void SimplePurePursuit::onTimer()
     cmd.longitudinal.speed = 0.0;
     cmd.longitudinal.acceleration = -10.0;
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "reached to the goal");
-  } else if(!object_detected || current_velocity_ > 0.3) {
+  // } else if(!this->object_detected || current_velocity_ > 0.3) {
+  } else if(!this->object_detected) {
     // get closest trajectory point from current position
     TrajectoryPoint closet_traj_point = trajectory_->points.at(closet_traj_point_idx);
 
@@ -141,7 +142,7 @@ void SimplePurePursuit::onTimer()
       // 障害物が回避範囲内に入った場合
       if (current_steering_ < 3.0 && current_steering_ > -3.0) { //4.5なら避けれる　２．０は際どい
         if (object_distance < object_radius_sum && object_distance > object_radius + 0.4) {
-          object_detected = true;  // 障害物検知フラグ
+          this->object_detected = true;  // 障害物検知フラグ
           //物体が前方にあるとき
           if ((object_angle_diff < 0.5 && object_angle_diff > 0.1) || (object_angle_diff < -0.1 && object_angle_diff > -0.5)) {
             if (object_angle_diff < 0) {
@@ -157,30 +158,31 @@ void SimplePurePursuit::onTimer()
       std::cout << "Object x: " << object_x << " Object y: " << object_y << std::endl;
     }
     }
-  } else if (object_detected && current_velocity_ < 0.3 && !is_wall) {
-      is_start = true;
-      current_x = odometry_->pose.pose.position.x;
-      current_y = odometry_->pose.pose.position.y;
-      is_wall = true;
-      gear_cmd.command = GearCommand::REVERSE;
-      sutea = current_steering_;
-    }else if (object_detected && is_wall && std::hypot(current_x - odometry_->pose.pose.position.x, current_y - odometry_->pose.pose.position.y) < 2.0){
-      if(sutea < 0){
-        cmd.longitudinal.speed = -3.0;
-        cmd.lateral.steering_tire_angle = 2.0;
+  } else if (this->object_detected) {
+  // } else if (this->object_detected && current_velocity_ < 0.3 && !is_wall) {
+    //   is_start = true;
+    //   this->current_x = odometry_->pose.pose.position.x;
+    //   this->current_y = odometry_->pose.pose.position.y;
+    //   this->is_wall = true;
+    //   gear_cmd.command = GearCommand::REVERSE;
+    //   this->sutea = current_steering_;
+    // }else if (this->object_detected && this->is_wall && std::hypot(this->current_x - odometry_->pose.pose.position.x, this->current_y - odometry_->pose.pose.position.y) < 2.0){
+    //   if(this->sutea < 0){
+        cmd.longitudinal.speed = 3.0;
+        cmd.lateral.steering_tire_angle = 0.0;
         cmd.longitudinal.acceleration = 3.0;
         gear_cmd.command = GearCommand::REVERSE;
-        is_wall = true;
-      } else {
-        cmd.longitudinal.speed = -3.0;
-        cmd.lateral.steering_tire_angle = -2.0;
-        cmd.longitudinal.acceleration = 3.0;
-        gear_cmd.command = GearCommand::REVERSE;
-        is_wall = true;
-      }
-    } else{
-      gear_cmd.command = GearCommand::DRIVE;  // 前進ギア
-      is_wall = false;
+        this->is_wall = true;
+    //   } else {
+    //     cmd.longitudinal.speed = -3.0;
+    //     cmd.lateral.steering_tire_angle = -2.0;
+    //     cmd.longitudinal.acceleration = 3.0;
+    //     gear_cmd.command = GearCommand::REVERSE;
+    //     this->is_wall = true;
+    //   }
+    // } else{
+    //   gear_cmd.command = GearCommand::DRIVE;  // 前進ギア
+    //   this->is_wall = false;
     }
 
   pub_cmd_->publish(cmd);

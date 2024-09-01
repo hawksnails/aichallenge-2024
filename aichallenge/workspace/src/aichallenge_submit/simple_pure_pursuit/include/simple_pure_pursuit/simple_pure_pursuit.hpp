@@ -58,6 +58,12 @@ class SimplePurePursuit : public rclcpp::Node {
   void onTimer();
   bool subscribeMessageAvailable();
   bool is_start;
+
+  double current_x = 0.0;
+  double current_y = 0.0;
+  bool is_wall = false;  // 壁にぶつかったことを検知するフラグ
+  double sutea = 0.0;
+  bool object_detected = false;
 };
 }  // namespace simple_pure_pursuit
 #endif  // SIMPLE_PURE_PURSUIT_HPP_
