@@ -15,6 +15,7 @@
 #include <std_msgs/msg/int32.hpp>
 #include <autoware_auto_vehicle_msgs/msg/velocity_report.hpp>
 #include<math.h>
+#include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 
 namespace simple_pure_pursuit {
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
@@ -28,6 +29,8 @@ using geometry_msgs::msg::Twist;
 using nav_msgs::msg::Odometry;
 using std_msgs::msg::Float64MultiArray;
 using std_msgs::msg::Int32;
+using autoware_auto_vehicle_msgs::msg::SteeringReport;
+
 class SimplePurePursuit : public rclcpp::Node {
  public:
   explicit SimplePurePursuit();

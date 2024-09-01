@@ -44,7 +44,7 @@ SimplePurePursuit::SimplePurePursuit()
     "/vehicle/status/velocity_status", 1, [this](const VelocityReport::SharedPtr msg) { velocity_ = msg; });
   using namespace std::literals::chrono_literals;
   timer_ =
-    rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
+    rclcpp::create_timer(this, get_clock(), 1ms, std::bind(&SimplePurePursuit::onTimer, this));
 
   to_goal = 0;
   is_decelerated_pitstop = false;
@@ -102,7 +102,8 @@ void SimplePurePursuit::onTimer()
   }
 
   if (to_goal == 2 && ((left_point <= 16 && cur_vel < 25.0) 
-  || (left_point <= 24 && cur_vel >= 27.0)
+  || (left_point <= 24 && cur_vel >= 27.0 && cur_vel < 29.0)
+  || (left_point <= 28 && cur_vel >= 29.0)
   || (left_point <= 20 && cur_vel >= 25.0 && cur_vel < 27.0))){
     //stop for pitstop
     is_decelerated_pitstop = true;
@@ -157,13 +158,23 @@ void SimplePurePursuit::onTimer()
   if(!object_detected || current_velocity_ > 0.3) {
     // get closest trajectory point from current position
     TrajectoryPoint closet_traj_point = trajectory_->points.at(closet_traj_point_idx);
-
     // calculate longitudinal speed and acceleration
-    double target_longitudinal_vel = use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
-    double current_longitudinal_vel = odometry_->twist.twist.linear.x;
-    cmd.longitudinal.speed = target_longitudinal_vel;
-    cmd.longitudinal.acceleration = speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+      double target_longitudinal_vel = use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
+      double current_longitudinal_vel = odometry_->twist.twist.linear.x;
 
+    if(to_goal != 2) {
+      cmd.longitudinal.speed = target_longitudinal_vel;
+      cmd.longitudinal.acceleration = speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+      if (current_steering_ > 8.0){
+        cmd.longitudinal.acceleration = speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+      } else if (current_steering_ > 4.0){
+        cmd.longitudinal.acceleration = 80;
+      } else if (current_steering_ > 2.0){
+        cmd.longitudinal.acceleration = 100;
+      } else {
+        cmd.longitudinal.acceleration = 200;
+      }
+    }
     // calculate lookahead distance
     double lookahead_distance = lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
 
@@ -193,7 +204,7 @@ void SimplePurePursuit::onTimer()
     // Object avoidance
     if(current_velocity_ > 6){
       for (size_t i = 0; i < objects_->data.size(); i += 4) {
-        if(i == 12 || i == 16 || i == 20 || i == 24) {
+        if(i == 12 || i == 16 || i == 20 || i == 24 || i == 28) {
           continue;
         }
         double object_x = objects_->data[i];
@@ -201,6 +212,15 @@ void SimplePurePursuit::onTimer()
         double object_radius = objects_->data[i + 3];
         double object_distance = std::hypot(object_x - odometry_->pose.pose.position.x, object_y - odometry_->pose.pose.position.y);
         double object_angle = std::atan2(object_y - odometry_->pose.pose.position.y, object_x - odometry_->pose.pose.position.x);
+
+        if(!((i == 0 && (2.09 * object_x - 7.43 * object_y < 0))
+        || (i == 4 && (3.74 * object_x - 6.59 * object_y > 0 && 2.52 * object_x - 6.43 * object_y < 0))
+        || (i == 8 && (1.92 * object_x - 6.37 * object_y < 0 && 1.06 * object_x - 6.64 * object_y > 0))
+        )) {
+          //1,2,3 objects in the curve, thus, not avoid by steering
+          std::cout << "Refused to avoid: " << i / 4 + 1 << std::endl;
+          continue;
+        }
 
         double object_radius_sum = object_radius + 4.5;
         double object_angle_diff = object_angle - tf2::getYaw(odometry_->pose.pose.orientation);
