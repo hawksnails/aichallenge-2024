@@ -44,7 +44,7 @@ SimplePurePursuit::SimplePurePursuit()
     "/vehicle/status/velocity_status", 1, [this](const VelocityReport::SharedPtr msg) { velocity_ = msg; });
   using namespace std::literals::chrono_literals;
   timer_ =
-    rclcpp::create_timer(this, get_clock(), 1ms, std::bind(&SimplePurePursuit::onTimer, this));
+    rclcpp::create_timer(this, get_clock(), 0.7ms, std::bind(&SimplePurePursuit::onTimer, this));
 
   to_goal = 0;
   is_decelerated_pitstop = false;
@@ -167,14 +167,14 @@ void SimplePurePursuit::onTimer()
       cmd.longitudinal.acceleration = speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
       if (current_steering_ > 8.0){
         cmd.longitudinal.acceleration = speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
-      } else if (current_steering_ > 4.0){
+      } else if (current_steering_ > 4.0 && cur_vel < 38.0){
         cmd.longitudinal.acceleration = 80;
-      } else if (current_steering_ > 2.0){
+      } else if (current_steering_ > 2.0 && cur_vel < 38.0){
         cmd.longitudinal.acceleration = 100;
-      } else {
-        cmd.longitudinal.acceleration = 200;
+      } else if(cur_vel < 38.0) {
+        cmd.longitudinal.acceleration = 400;
       }
-    }
+   }
     // calculate lookahead distance
     double lookahead_distance = lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
 
