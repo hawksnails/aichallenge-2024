@@ -172,7 +172,7 @@ void SimplePurePursuit::onTimer()
       } else if (current_steering_ > 2.0 && cur_vel < 38.0){
         cmd.longitudinal.acceleration = 100;
       } else if(cur_vel < 38.0) {
-        cmd.longitudinal.acceleration = 400;
+        cmd.longitudinal.acceleration = 420;
       }
    }
     // calculate lookahead distance
