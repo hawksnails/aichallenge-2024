@@ -89,20 +89,21 @@ def create_points(init_points):
     # df = pd.read_csv('specific_relation_nodes_coordinates_with_wall_info2.csv')
 
 
-    obstacles = [Obstacle(11.4, 38.1 + 7.2, 2),
-                Obstacle(41.4, 18.8 + 7.2, 2.5),
-                 Obstacle(19.2, 47.7 + 7.2, 1.3),
-                Obstacle(20, 56.6 + 7.2, 2.8),
-                Obstacle(25.6, 60 + 7.2, 2.3),
-                Obstacle(40.6, 65.1 + 7.2, 5),
-                Obstacle(60.6, 58.8 + 7.2, 2.5),
-                Obstacle(50.3, 45.2 + 7.2, 2),
-                Obstacle(61.4, 42 + 7.2, 2.4),
-                Obstacle(74.6, 43 + 7.2, 3),
-                Obstacle(82.1, 33.8 + 7.2, 2.4),
-                Obstacle(74.5, 38.7, 3.5),
-                Obstacle(65.2, 18.5 + 7.2, 2.8),
-                Obstacle(50.3, 12.6, 4)]
+    obstacles = [Obstacle(17.6 + 89600, 61.5 + 43100, 2.2),
+                Obstacle(42 + 89600, 41.7 + 43100, 2.5),
+                Obstacle(24 + 89600, 72  + 43100, 1.3),
+                Obstacle(25 + 89600, 80  + 43100, 2.8),
+                Obstacle(29.5 + 89600, 83  + 43100, 2.3),
+                Obstacle(42 + 89600, 89  + 43100, 5),
+                Obstacle(58 + 89600, 82  + 43100, 2.5),
+                Obstacle(50 + 89600, 68  + 43100, 2),
+                Obstacle(58.4 + 89600, 65  + 43100, 2.4),
+                Obstacle(69.5 + 89600, 66  + 43100, 2.8),
+                Obstacle(73 + 89600, 56.5  + 43100, 4),
+                Obstacle(68 + 89600, 53 + 43100, 3.5),
+                Obstacle(62 + 89600, 41.5 + 43100, 2.8),
+                Obstacle(50 + 89600, 28 + 43100, 4),
+                Obstacle(39.5 + 89600, 29.5 + 43100, 3)]
 
 
     # checkpoints = [Checkpoint(0, [30, 35], [0, 10]),
@@ -117,24 +118,26 @@ def create_points(init_points):
     #                 Checkpoint(80, [70, 78], [45, 50]),
     #                 Checkpoint(85, [83, 95], [30, 40]),
     #                 Checkpoint(92, [58, 65], [20, 25])]
-    checkpoints = [Checkpoint([22, 35], [0 + 7.2, 10 + 7.2]),
-                    Checkpoint([0, 11], [34 + 7.2, 41 + 7.2]),
-                    Checkpoint([8, 13], [40 + 7.2, 50 + 7.2]),
-                    Checkpoint([41, 51], [9 + 7.2, 18 + 7.2]),
-                    Checkpoint([18, 30], [49 + 7.2, 55 + 7.2]),
-                    Checkpoint([25, 35], [40 + 7.2, 45 + 7.2]),
-                    Checkpoint([7, 18], [51 + 7.2, 60 + 7.2]),
-                    Checkpoint([15, 22], [60 + 7.2, 70 + 7.2]),
-                    Checkpoint([25, 40], [57 + 7.2, 65 + 7.2]),
-                    Checkpoint([60, 70], [58 + 7.2, 67 + 7.2]),
-                    Checkpoint([50, 63], [48 + 7.2, 55 + 7.2]),
-                    Checkpoint([40, 49], [40 + 7.2, 50 + 7.2]),
+    checkpoints = [Checkpoint([22 + 89600, 35 + 89600], [30  + 43100, 40  + 43100]),
+                    Checkpoint([5 + 89600, 16 + 89600], [59  + 43100, 66  + 43100]),
+                    Checkpoint([14 + 89600, 21 + 89600], [62  + 43100, 70  + 43100]),
+                    Checkpoint([39 + 89600, 51 + 89600], [29  + 43100, 40  + 43100]),
+                    Checkpoint([18 + 89600, 30 + 89600], [71  + 43100, 77  + 43100]),
+                    Checkpoint([33 + 89600, 40 + 89600], [50  + 43100, 67  + 43100]),
+                    Checkpoint([15 + 89600, 22 + 89600], [75  + 43100, 85  + 43100]),
+                    Checkpoint([20 + 89600, 30 + 89600], [83  + 43100, 95  + 43100]),
+                    Checkpoint([35 + 89600, 47 + 89600], [77  + 43100, 85  + 43100]),
+                    Checkpoint([60 + 89600, 70 + 89600], [78  + 43100, 87  + 43100]),
+                    Checkpoint([50 + 89600, 63 + 89600], [83  + 43100, 95  + 43100]),
+                    Checkpoint([40 + 89600, 49 + 89600], [61  + 43100, 72  + 43100]),
                     # Checkpoint([47, 51], [41, 45]),
-                    Checkpoint([55, 62], [30 + 7.2, 41 + 7.2]),
-                    Checkpoint([70, 78], [45 + 7.2, 53 + 7.2]),
-                    Checkpoint([83, 95], [30 + 7.2, 40 + 7.2]),
-                    Checkpoint([58, 65], [19 + 7.2, 27 + 7.2]),
-                    Checkpoint([40, 60], [0, 10])]
+                    Checkpoint([60 + 89600, 70 + 89600], [63  + 43100, 68  + 43100]),
+                    Checkpoint([70 + 89600, 78 + 89600], [65  + 43100, 73  + 43100]),
+                    Checkpoint([75 + 89600, 85 + 89600], [50  + 43100, 60  + 43100]),
+                    Checkpoint([55 + 89600, 63 + 89600], [44  + 43100, 51  + 43100]),
+                    Checkpoint([52 + 89600, 59 + 89600], [30  + 43100, 45  + 43100]),
+                    Checkpoint([40 + 89600, 55 + 89600], [-2 + 43118.0886, 8 + 43118.0886])]
+
 
     # #デバッグ用マップ描画
     # plt.figure(figsize=(10, 10))
@@ -235,8 +238,8 @@ def create_points(init_points):
 
     # 終端拘束
     # 始点は中央線の最初の点で停止している
-    opti.subject_to(X[0,0] == init_points[0][0])
-    opti.subject_to(X[1,0] == init_points[0][1])
+    # opti.subject_to(X[0,0] == init_points[0][0])
+    # opti.subject_to(X[1,0] == init_points[0][1])
     opti.subject_to(X[2,0] == 0)  # th
     opti.subject_to(X[3,0] == 0)  # vx
     opti.subject_to(X[4,0] == 0)  # vy
@@ -247,8 +250,8 @@ def create_points(init_points):
 
     # 終端拘束
     # 終点は中央線の最後の点で停止している
-    opti.subject_to(X[0,N] == init_points[-1][0])
-    opti.subject_to(X[1,N] == init_points[-1][1])
+    opti.subject_to(X[0,N] == X[0,0])
+    opti.subject_to(X[1,N] == X[1,0])
     opti.subject_to(X[2,N] == 0)  # th
     opti.subject_to(X[3,N] == 0)  # vx
     opti.subject_to(X[4,N] == 0)  # vy
@@ -296,28 +299,28 @@ def create_points(init_points):
         print("error")
 
     # #解の描画
-    # plt.plot(opti.value(X[0,:]), opti.value(X[1,:]))
-    # # plt.gca().add_patch(
-    # #     patch.Circle((50, 50), 5, edgecolor="black", facecolor="r", alpha=0.8)
-    # # )
-    # plt.xlim(0,100)
-    # plt.ylim(0,100)
-    # for p in obstacles:
-    #     plt.gca().add_patch(
-    #         patch.Circle((p.x, p.y), p.r, edgecolor="black", facecolor="r", alpha=0.8)
-    #     )
-    # cp = []
-    # for p in checkpoints:
-    #     plt.gca().add_patch(
-    #         patch.Rectangle((p.x_range[0], p.y_range[0]), p.x_range[1]-p.x_range[0], p.y_range[1]-p.y_range[0], edgecolor="black", facecolor="g", alpha=0.8)
-    #     )
-    #     cp.append([opti.value(X[0,p.node_id]),opti.value(X[1,p.node_id])])
-    # plt.scatter([p[0] for p in cp], [p[1] for p in cp], c='black', marker='x', edgecolor='k')
-    # # plt.plot(left_wall_coords[:, 0], left_wall_coords[:, 1], c='red')
-    # # plt.plot(right_wall_coords[:, 0], right_wall_coords[:, 1], c='green')
-    # plt.scatter(left_wall_coords[:, 0], left_wall_coords[:, 1], c='red', marker='o', edgecolor='k', s=2)
-    # plt.scatter(right_wall_coords[:, 0], right_wall_coords[:, 1], c='green', marker='o', edgecolor='k', s=2)
-    # plt.show()
+    plt.plot(opti.value(X[0,:]), opti.value(X[1,:]))
+    # plt.gca().add_patch(
+    #     patch.Circle((50, 50), 5, edgecolor="black", facecolor="r", alpha=0.8)
+    # )
+    plt.xlim(0,100)
+    plt.ylim(0,100)
+    for p in obstacles:
+        plt.gca().add_patch(
+            patch.Circle((p.x, p.y), p.r, edgecolor="black", facecolor="r", alpha=0.8)
+        )
+    cp = []
+    for p in checkpoints:
+        plt.gca().add_patch(
+            patch.Rectangle((p.x_range[0], p.y_range[0]), p.x_range[1]-p.x_range[0], p.y_range[1]-p.y_range[0], edgecolor="black", facecolor="g", alpha=0.8)
+        )
+        cp.append([opti.value(X[0,p.node_id]),opti.value(X[1,p.node_id])])
+    plt.scatter([p[0] for p in cp], [p[1] for p in cp], c='black', marker='x', edgecolor='k')
+    # plt.plot(left_wall_coords[:, 0], left_wall_coords[:, 1], c='red')
+    # plt.plot(right_wall_coords[:, 0], right_wall_coords[:, 1], c='green')
+    plt.scatter(left_wall_coords[:, 0], left_wall_coords[:, 1], c='red', marker='o', edgecolor='k', s=2)
+    plt.scatter(right_wall_coords[:, 0], right_wall_coords[:, 1], c='green', marker='o', edgecolor='k', s=2)
+    plt.show()
 
     # print("log:",log)
     # #最適化のlogの描画
@@ -376,17 +379,23 @@ class PathToTrajectory(Node):
             self.result = create_points(init_points)
             self.got_new_obstacle = False
         # print(msg)
-        # for path_point_with_lane_id in msg.points:
-        #     trajectory_point = TrajectoryPoint()
-        #     trajectory_point.pose = path_point_with_lane_id.point.pose
-        #     trajectory_point.longitudinal_velocity_mps = path_point_with_lane_id.point.longitudinal_velocity_mps
-        #     trajectory.points.append(trajectory_point)
-        def to_latelong(x, y):
-            # return x + msg.points[0].point.pose.position.x, y + msg.points[0].point.pose.position.y
-            return (x + 15560341.360989474) / (np.pi / 180 * 6378137), (y + 3965832.877402093) / (np.pi / 180 * 6378137)
+        min_x = 1000000000000000000
+        min_y = 1000000000000000000
+        for path_point_with_lane_id in msg.points:
+            min_x = min(min_x, path_point_with_lane_id.point.pose.position.x)
+            min_y = min(min_y, path_point_with_lane_id.point.pose.position.y)
+            # trajectory_point = TrajectoryPoint()
+            # trajectory_point.pose = path_point_with_lane_id.point.pose
+            # trajectory_point.longitudinal_velocity_mps = path_point_with_lane_id.point.longitudinal_velocity_mps
+            # trajectory.points.append(trajectory_point)
+        # def to_latelong(x, y):
+        #     # return x + msg.points[0].point.pose.position.x, y + msg.points[0].point.pose.position.y
+        #     # return (x + 15560341.360989474) / (np.pi / 180 * 6378137), (y + 3965832.877402093) / (np.pi / 180 * 6378137)
+        #     k = 0.9
+        #     return (x * k + 89603.6178), (y * k + 43118.0886) # 43193.0886)
         for p in self.result:
             trajectory_point = TrajectoryPoint()
-            trajectory_point.pose.position.x, trajectory_point.pose.position.y = to_latelong(p[0], p[1])
+            trajectory_point.pose.position.x, trajectory_point.pose.position.y = p[0], p[1]
             trajectory_point.longitudinal_velocity_mps = 30 * 1000 / 3600
             trajectory.points.append(trajectory_point)
         self.pub_.publish(trajectory)

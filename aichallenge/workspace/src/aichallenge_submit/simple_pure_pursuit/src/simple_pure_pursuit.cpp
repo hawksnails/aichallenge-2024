@@ -98,6 +98,7 @@ void SimplePurePursuit::onTimer()
     // calc longitudinal speed and acceleration
     target_longitudinal_vel = 
         use_external_target_vel_ ? external_target_vel_ : closet_traj_point.longitudinal_velocity_mps;
+    target_longitudinal_vel = 30.0 * 1000.0 / 3600.0; // km/h -> m/s
     double current_longitudinal_vel = odometry_->twist.twist.linear.x;
     cmd.longitudinal.speed = target_longitudinal_vel;
     cmd.longitudinal.acceleration =
