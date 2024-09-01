@@ -204,7 +204,8 @@ void SimplePurePursuit::onTimer()
     // Object avoidance
     if(current_velocity_ > 6){
       for (size_t i = 0; i < objects_->data.size(); i += 4) {
-        if(i == 12 || i == 16 || i == 20 || i == 24 || i == 28) {
+        // if(i == 12 || i == 16 || i == 20 || i == 24 || i == 28) {
+        if(i < 999) {
           continue;
         }
         double object_x = objects_->data[i];

@@ -120,9 +120,9 @@ void GoalPosePublisher::on_timer()
 void GoalPosePublisher::onVehicleCondition(const std_msgs::msg::Int32::SharedPtr msg){
     vehicle_condition_ = msg->data;
     // if ((vehicle_condition_ >= 1000 && lap_count_ <= 4) || lap_count_ == 2){
-    if (lap_count_ == 2){
-        pit_stop_flag = true;
-    }
+    // if (lap_count_ == 2){
+    //     pit_stop_flag = true;
+    // }
 }
 
 void GoalPosePublisher::route_state_callback(const autoware_adapi_v1_msgs::msg::RouteState::SharedPtr msg)
