@@ -171,7 +171,7 @@ void SimplePurePursuit::onTimer()
         cmd.longitudinal.speed = 3.0;
         cmd.lateral.steering_tire_angle = 0.0;
         cmd.longitudinal.acceleration = 3.0;
-        gear_cmd.command = GearCommand::REVERSE;
+        gear_cmd.command = GearCommand::PARK;
         this->is_wall = true;
     //   } else {
     //     cmd.longitudinal.speed = -3.0;
