@@ -320,7 +320,7 @@ def create_points(init_points):
     # plt.plot(right_wall_coords[:, 0], right_wall_coords[:, 1], c='green')
     plt.scatter(left_wall_coords[:, 0], left_wall_coords[:, 1], c='red', marker='o', edgecolor='k', s=2)
     plt.scatter(right_wall_coords[:, 0], right_wall_coords[:, 1], c='green', marker='o', edgecolor='k', s=2)
-    plt.show()
+    # plt.show()
 
     # print("log:",log)
     # #最適化のlogの描画
