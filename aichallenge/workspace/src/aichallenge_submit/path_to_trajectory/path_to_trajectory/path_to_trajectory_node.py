@@ -41,7 +41,7 @@ class Obstacle:
         self.r = r
     def subject_to_obstacle(self,opti):
         for i in range(N):
-            opti.subject_to((X[0,i] - self.x)**2 + (X[1,i] - self.y)**2 >= self.r **2)
+            opti.subject_to((X[0,i] - self.x)**2 + (X[1,i] - self.y)**2 >= (self.r + 0) **2)
 class Wall:
     def __init__(self, x1, y1, x2, y2):
         self.x1 = x1
@@ -207,7 +207,7 @@ def create_points(init_points):
     def subject_to_wall():
         for i in range(N):
             for o in nearest_obstacle[i]:
-                opti.subject_to((X[0,i] - o.x)**2 + (X[1,i] - o.y)**2 >= (o.r + (1.45 / 2)) **2)
+                opti.subject_to((X[0,i] - o.x)**2 + (X[1,i] - o.y)**2 >= (o.r + (4.0 / 2)) **2)
             # for p in left_wall_coords:
             #     opti.subject_to((X[0,i] - p[0])**2 + (X[1,i] - p[1])**2 >= MIN_DISTANCE_TO_WALL**2)
             # for p in right_wall_coords:
