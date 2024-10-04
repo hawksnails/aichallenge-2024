@@ -41,7 +41,7 @@ class Obstacle:
         self.r = r
     def subject_to_obstacle(self,opti):
         for i in range(N):
-            opti.subject_to((X[0,i] - self.x)**2 + (X[1,i] - self.y)**2 >= (self.r + 0) **2)
+            opti.subject_to((X[0,i] - self.x)**2 + (X[1,i] - self.y)**2 >= self.r **2)
 class Wall:
     def __init__(self, x1, y1, x2, y2):
         self.x1 = x1
