@@ -183,7 +183,6 @@ PathToTrajectory::PathToTrajectory() : Node("path_to_trajectory_node") {
     using std::placeholders::_1;
 
     pub_ = this->create_publisher<autoware_auto_planning_msgs::msg::Trajectory>("output", 1);
-    // sub_ = this->create_subscription<autoware_auto_planning_msgs::msg::PathWithLaneId>("input", 1, std::bind(&PathToTrajectory::callback, this, _1));
     sub_ = this->create_subscription<autoware_auto_planning_msgs::msg::PathWithLaneId>("input", 1, std::bind(&PathToTrajectory::callback, this, _1));
 }
 
@@ -191,34 +190,20 @@ void PathToTrajectory::callback(const autoware_auto_planning_msgs::msg::PathWith
     // particles.csvからPathTrajectoryを生成
 
     using namespace my_namespace;
-    std::cout << "callback called" << std::endl;
     static bool called = false;
     if (called){
         return;
     }
+    called = true;
     std::string path = "/aichallenge/workspace/src/aichallenge_submit/path_to_trajectory/src/particles.csv";
     auto traj = PathTrajectory(path);
-    std::cout << traj.path_time << std::endl;
-    called = true;
 
     // PathTrajectoryの経路を生成 (dt = 0.01を仮定)
     std::vector<PathPoint> generated_path = traj.generate_path(0.01);
-    if (generated_path.empty()) {
-        std::cout << "Failed to generate path" << std::endl;
-        return;
-    }
-    std::cout << "generated_path.size() = " << generated_path.size() << std::endl;
 
     // ROS 2 の Trajectory メッセージ型に変換
     autoware_auto_planning_msgs::msg::Trajectory trajectory;
-    if (msg == nullptr) {
-        std::cout << "msg is nullptr" << std::endl;
-    }else{
-      trajectory.header = msg->header;  // 元のメッセージのヘッダーを使用
-      std::cout << "trajectory.header.stamp = " << trajectory.header.stamp.sec << std::endl;
-    }
-
-
+    trajectory.header = msg->header;  // 元のメッセージのヘッダーを使用
 
     for (const auto& path_point : generated_path) {
         autoware_auto_planning_msgs::msg::TrajectoryPoint trajectory_point;
@@ -235,17 +220,6 @@ void PathToTrajectory::callback(const autoware_auto_planning_msgs::msg::PathWith
 
 int main(int argc, char const* argv[]) {
     rclcpp::init(argc, argv);
-    // auto traj =  PathTrajectory("particles.csv");
-    // traj.write_path("path.csv");
-    // std::vector<PathPoint> generated_path = traj.generate_path(0.01);
-    //     for (const auto& path_point : generated_path) {
-    //     autoware_auto_planning_msgs::msg::TrajectoryPoint trajectory_point;
-    //     trajectory_point.pose.position.x = path_point.x;
-    //     trajectory_point.pose.position.y = path_point.y;
-    //     trajectory_point.longitudinal_velocity_mps = path_point.vel;
-        
-    //     trajectory.points.emplace_back(std::move(trajectory_point));
-    // }
     rclcpp::spin(std::make_shared<PathToTrajectory>());
     rclcpp::shutdown();
     return 0;
