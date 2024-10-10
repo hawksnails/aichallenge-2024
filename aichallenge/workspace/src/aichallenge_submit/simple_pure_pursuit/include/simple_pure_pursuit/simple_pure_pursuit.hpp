@@ -15,6 +15,11 @@
 #include <autoware_auto_vehicle_msgs/msg/velocity_report.hpp>
 #include<math.h>
 
+
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/twist_with_covariance_stamped.hpp"
+
+
 namespace simple_pure_pursuit {
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
 using autoware_auto_planning_msgs::msg::Trajectory;
@@ -37,8 +42,10 @@ class SimplePurePursuit : public rclcpp::Node {
   rclcpp::Subscription<SteeringReport>::SharedPtr sub_steering_;
   rclcpp::Subscription<Int32>::SharedPtr sub_is_pitstop_;
   rclcpp::Subscription<VelocityReport>::SharedPtr sub_velocity_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_gnss_;
   // publishers
   rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_cmd_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_initial_pose_3d_;
 
   rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_raw_cmd_;
   rclcpp::Publisher<PointStamped>::SharedPtr pub_lookahead_point_;  
@@ -53,6 +60,8 @@ class SimplePurePursuit : public rclcpp::Node {
   VelocityReport::SharedPtr velocity_;
 
   double current_steering_;
+
+  std::array<double, 2> gnss_pos;
 
   // pure pursuit parameters
   const double wheel_base_;
@@ -69,6 +78,8 @@ class SimplePurePursuit : public rclcpp::Node {
  private:
   void onTimer();
   bool subscribeMessageAvailable();
+  bool initAngleEstimation();
+  void gnss_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg);
 };
 }  // namespace simple_pure_pursuit
 #endif  // SIMPLE_PURE_PURSUIT_HPP_
