@@ -39,7 +39,7 @@ SimplePurePursuit::SimplePurePursuit()
   pub_lookahead_point_ = create_publisher<PointStamped>("/control/debug/lookahead_point", 1);
 
   auto qos = rclcpp::QoS(rclcpp::KeepLast(10)).reliable();
-  pub_initial_pose_3d_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/localization/initial_pose3d", qos);
+  // pub_initial_pose_3d_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/localization/initial_pose3d", qos);
 
   sub_gnss_ = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "/sensing/gnss/pose_with_covariance", qos,
@@ -147,7 +147,7 @@ bool SimplePurePursuit::initAngleEstimation(){
     msg.pose.covariance[7*4] = 100000.0;
     msg.pose.covariance[7*5] = 100000.0;
 
-    pub_initial_pose_3d_->publish(msg);
+    // pub_initial_pose_3d_->publish(msg);
   }
   if (cnt == 1500){
     initialize_done = true;
@@ -173,9 +173,9 @@ void SimplePurePursuit::onTimer()
     return;
   }
   
-  // if (initAngleEstimation()){
-  //   return;
-  // }
+  if (initAngleEstimation()){
+    return;
+  }
 
 
   size_t closet_traj_point_idx = findNearestIndex(trajectory_->points, odometry_->pose.pose.position);

@@ -45,7 +45,7 @@ class SimplePurePursuit : public rclcpp::Node {
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_gnss_;
   // publishers
   rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_cmd_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_initial_pose_3d_;
+  // rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_initial_pose_3d_;
 
   rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_raw_cmd_;
   rclcpp::Publisher<PointStamped>::SharedPtr pub_lookahead_point_;  
