@@ -173,9 +173,9 @@ void SimplePurePursuit::onTimer()
     return;
   }
   
-  if (initAngleEstimation()){
-    return;
-  }
+  // if (initAngleEstimation()){
+  //   return;
+  // }
 
 
   size_t closet_traj_point_idx = findNearestIndex(trajectory_->points, odometry_->pose.pose.position);

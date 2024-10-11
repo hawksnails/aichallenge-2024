@@ -11,7 +11,7 @@ public:
     {
         auto qos = rclcpp::QoS(rclcpp::KeepLast(10)).reliable();
         pub_pose_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/localization/imu_gnss_poser/pose_with_covariance", qos);
-        // pub_initial_pose_3d_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/localization/initial_pose3d", qos);
+        pub_initial_pose_3d_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/localization/initial_pose3d", qos);
         sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistWithCovarianceStamped>(
             "/localization/twist_with_covariance", qos,
             std::bind(&ImuGnssPoser::twist_callback, this, std::placeholders::_1));
@@ -51,8 +51,8 @@ private:
             msg->pose.pose.orientation.w = imu_msg_.orientation.w;
         }
         pub_pose_->publish(*msg);
-        // if (!is_ekf_initialized_)
-        //     pub_initial_pose_3d_->publish(*msg); //ekfの初期値として使用    
+        if (!is_ekf_initialized_)
+            pub_initial_pose_3d_->publish(*msg); //ekfの初期値として使用    
     }
 
     void imu_callback(sensor_msgs::msg::Imu::SharedPtr msg) {
