@@ -127,17 +127,19 @@ bool SimplePurePursuit::initAngleEstimation(){
   }else{
     target_vel = 0.0;
   }
-  if (cnt == 1100){
+  if (cnt >= 1100){
     double angle = std::atan2(gnss_pos[1] - prev_gnss_pos[1], gnss_pos[0] - prev_gnss_pos[0]);
     geometry_msgs::msg::PoseWithCovarianceStamped msg;
     msg.header.stamp = get_clock()->now();
     msg.pose.pose.position.x = gnss_pos[0];
     msg.pose.pose.position.y = gnss_pos[1];
     msg.pose.pose.position.z = 0;
-    msg.pose.pose.orientation.x = 0;
-    msg.pose.pose.orientation.y = 0;
-    msg.pose.pose.orientation.z = std::sin(angle / 2.0);
-    msg.pose.pose.orientation.w = std::cos(angle / 2.0);
+    auto quat = tf2::Quaternion();
+    quat.setRPY(0, 0, angle);
+    msg.pose.pose.orientation.x = quat.x();
+    msg.pose.pose.orientation.y = quat.y();
+    msg.pose.pose.orientation.z = quat.z();
+    msg.pose.pose.orientation.w = quat.w();
     msg.pose.covariance[7*0] = 0.1;
     msg.pose.covariance[7*1] = 0.1;
     msg.pose.covariance[7*2] = 0.1;
@@ -227,7 +229,7 @@ void SimplePurePursuit::onTimer()
   
 
     double alpha = std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) -
-                    tf2::getYaw(odometry_->pose.pose.orientation) + 5 * M_PI / 180.0;
+                    tf2::getYaw(odometry_->pose.pose.orientation);
     
     // std::cout << "dy: " << lookahead_point_y - rear_y << " dx: " << lookahead_point_x - rear_x
     //           << " atan2: " << std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) 
