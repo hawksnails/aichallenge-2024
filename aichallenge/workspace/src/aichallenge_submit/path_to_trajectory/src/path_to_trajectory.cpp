@@ -199,7 +199,7 @@ void PathToTrajectory::callback(const autoware_auto_planning_msgs::msg::PathWith
     auto traj = PathTrajectory(path);
 
     // PathTrajectoryの経路を生成 (dt = 0.01を仮定)
-    std::vector<PathPoint> generated_path = traj.generate_path(0.05);
+    std::vector<PathPoint> generated_path = traj.generate_path(0.03);
 
     // ROS 2 の Trajectory メッセージ型に変換
     autoware_auto_planning_msgs::msg::Trajectory trajectory;
