@@ -1,6 +1,6 @@
 #!/bin/bash
 AWSIM_DIRECTORY=/aichallenge/simulator/AWSIM
-
+# AWSIM_DIRECTORY=/aichallenge/simulator/AWSIM_GPU
 # Move working directory
 OUTPUT_DIRECTORY=$(date +%Y%m%d-%H%M%S)
 cd /output || exit
@@ -21,7 +21,7 @@ sleep 20
 
 # Start Autoware
 echo "Start Autoware"
-ros2 launch aichallenge_system_launch aichallenge_system.launch.xml >autoware.log 2>&1 &
+ros2 launch aichallenge_system_launch aichallenge_system.launch.xml simulation:=true use_sim_time:=true run_rviz:=true >autoware.log 2>&1 &
 PID_AUTOWARE=$!
 sleep 10
 
@@ -44,9 +44,33 @@ wmctrl -a "AWSIM" && wmctrl -r "AWSIM" -e 0,0,0,900,1043
 ros2 service call /debug/service/capture_screen std_srvs/srv/Trigger >/dev/null
 sleep 1
 
+# Set initial pose
+echo "Set initial pose"
+ros2 topic pub -1 /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{ 
+  header: {
+    frame_id: 'map'
+  },
+  pose: {
+    pose: {
+      position: {
+        x: 89633.29,
+        y: 43127.57,
+        z: 0.0
+      },
+      orientation: {
+        x: 0.0,
+        y: 0.0,
+        z: 0.8778,
+        w: 0.4788
+      }
+    }
+  }
+}" >/dev/null
+sleep 1
+
 # Start driving and wait for the simulation to finish
 echo "Waiting for the simulation"
-ros2 topic pub --once /control/control_mode_request_topic std_msgs/msg/Bool '{data: true}' >/dev/null
+ros2 service call /control/control_mode_request autoware_auto_vehicle_msgs/srv/ControlModeCommand '{mode: 1}' >/dev/null
 wait $PID_AWSIM
 
 # Stop recording rviz2

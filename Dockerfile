@@ -11,8 +11,11 @@ RUN apt-get -y install ros-humble-rqt-graph
 # PATH="$PATH:/root/.local/bin"
 # PATH="/usr/local/cuda/bin:$PATH"
 ENV XDG_RUNTIME_DIR=/tmp/xdg
-ENV ROS_LOCALHOST_ONLY=1
+ENV ROS_LOCALHOST_ONLY=0
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV CYCLONEDDS_URI=file:///opt/autoware/cyclonedds.xml
+
+COPY vehicle/cyclonedds.xml /opt/autoware/cyclonedds.xml
 
 FROM common AS dev
 
