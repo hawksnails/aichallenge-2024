@@ -84,39 +84,79 @@ void SimplePurePursuit::onTimer()
     // get closest trajectory point from current position
     TrajectoryPoint closet_traj_point = trajectory_->points.at(closet_traj_point_idx);
 
-    // calc longitudinal speed and acceleration
+    // // calc longitudinal speed and acceleration
     target_longitudinal_vel = closet_traj_point.longitudinal_velocity_mps;
     double current_longitudinal_vel = odometry_->twist.twist.linear.x;
     cmd.longitudinal.speed = target_longitudinal_vel;
     double acc = closet_traj_point.lateral_velocity_mps;
     cmd.longitudinal.acceleration = acc + speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
 
-    // calc lateral control
-    //// calc lookahead distance
-    double lookahead_distance = lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
-    //// calc center coordinate of rear wheel
-    double rear_x = odometry_->pose.pose.position.x -
-                    wheel_base_ / 2.0 * std::cos(odometry_->pose.pose.orientation.z);
-    double rear_y = odometry_->pose.pose.position.y -
-                    wheel_base_ / 2.0 * std::sin(odometry_->pose.pose.orientation.z);
-    //// search lookahead point
-    auto lookahead_point_itr = std::find_if(
-      trajectory_->points.begin() + closet_traj_point_idx, trajectory_->points.end(),
-      [&](const TrajectoryPoint & point) {
-        return std::hypot(point.pose.position.x - rear_x, point.pose.position.y - rear_y) >=
-                lookahead_distance;
-      });
-    if (lookahead_point_itr == trajectory_->points.end()) {
-      lookahead_point_itr = trajectory_->points.end() - 1;
-    }
-    double lookahead_point_x = lookahead_point_itr->pose.position.x;
-    double lookahead_point_y = lookahead_point_itr->pose.position.y;
+    // // calc lateral control
+    // //// calc lookahead distance
+    // double lookahead_distance = lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
+    // //// calc center coordinate of rear wheel
+    // double rear_x = odometry_->pose.pose.position.x -
+    //                 wheel_base_ / 2.0 * std::cos(odometry_->pose.pose.orientation.z);
+    // double rear_y = odometry_->pose.pose.position.y -
+    //                 wheel_base_ / 2.0 * std::sin(odometry_->pose.pose.orientation.z);
+    // //// search lookahead point
+    // auto lookahead_point_itr = std::find_if(
+    //   trajectory_->points.begin() + closet_traj_point_idx, trajectory_->points.end(),
+    //   [&](const TrajectoryPoint & point) {
+    //     return std::hypot(point.pose.position.x - rear_x, point.pose.position.y - rear_y) >=
+    //             lookahead_distance;
+    //   });
+    // if (lookahead_point_itr == trajectory_->points.end()) {
+    //   lookahead_point_itr = trajectory_->points.end() - 1;
+    // }
+    // double lookahead_point_x = lookahead_point_itr->pose.position.x;
+    // double lookahead_point_y = lookahead_point_itr->pose.position.y;
+
+    double lat_error = odometry_->pose.pose.position.y - closet_traj_point.pose.position.y;
+    double lon_error = odometry_->pose.pose.position.x - closet_traj_point.pose.position.x;
+
+    Eigen::Rotation2Dd rot(-tf2::getYaw(closet_traj_point.pose.orientation));
+    Eigen::Vector2d error_rotated = rot * Eigen::Vector2d(lat_error, lon_error);
+
+    static double tmp = error_rotated[1];
+
+    double y_error = error_rotated[1];
+    double y_error_dot = (y_error - tmp) / 0.03;
+    tmp = y_error;
+
+    // static double y_error = std::hypot(lat_error, lon_error);
+    // double tmp = std::hypot(lat_error, lon_error);
+
+    // double error_dir = std::atan2(lat_error, lon_error);
+    // Eigen::Quaterniond q(odometry_->pose.pose.orientation.w, odometry_->pose.pose.orientation.x, odometry_->pose.pose.orientation.y, odometry_->pose.pose.orientation.z);
+    // double yaw = q.toRotationMatrix().eulerAngles(0, 1, 2)[2];
+    // error_dir -= yaw;
+    // error_dir = std::remainder(error_dir, 2.0 * M_PI);
+    // if (error_dir < M_PI) {
+    //   tmp = -tmp;
+    // }
+    
+    // // double y_error_dot = (y_error - tmp) / 0.03;
+    // y_error = tmp;
+
+    std::cout << "y_error: " << y_error << std::endl;
+    double ff_steering;
+    auto curvature = closet_traj_point.heading_rate_rps;
+    // if (curvature <= 1e-3) {
+    //   ff_steering = 0.0;
+    // } else {
+    //   ff_steering = wheel_base_ / curvature;
+    // }
+    ff_steering = wheel_base_ * curvature;
+    double fb_steering = current_steering_ - y_error * 0.02 - y_error_dot * 0.05;
+    constexpr double s = 0.0;
+    cmd.lateral.steering_tire_angle = s * ff_steering + (1.0 - s) * fb_steering;
 
     geometry_msgs::msg::PointStamped lookahead_point_msg;
     lookahead_point_msg.header.stamp = get_clock()->now();
     lookahead_point_msg.header.frame_id = "map";
-    lookahead_point_msg.point.x = lookahead_point_x;
-    lookahead_point_msg.point.y = lookahead_point_y;
+    lookahead_point_msg.point.x = closet_traj_point.pose.position.x;
+    lookahead_point_msg.point.y = closet_traj_point.pose.position.y;
     lookahead_point_msg.point.z = 0;
     pub_lookahead_point_->publish(lookahead_point_msg);
 
@@ -124,14 +164,15 @@ void SimplePurePursuit::onTimer()
 
   
 
-    double alpha = std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) -
-                    tf2::getYaw(odometry_->pose.pose.orientation) + 5 * M_PI / 180.0;
-    
+    // double alpha = std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) -
+    //                 tf2::getYaw(odometry_->pose.pose.orientation) + 5 * M_PI / 180.0;
+
+
     // std::cout << "dy: " << lookahead_point_y - rear_y << " dx: " << lookahead_point_x - rear_x
     //           << " atan2: " << std::atan2(lookahead_point_y - rear_y, lookahead_point_x - rear_x) 
     //           << " yaw: " << tf2::getYaw(odometry_->pose.pose.orientation)
     //           << " alpha: " << alpha << std::endl;
-    cmd.lateral.steering_tire_angle =2 * std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance);
+    // cmd.lateral.steering_tire_angle =2 * std::atan2(2.0 * wheel_base_ * std::sin(alpha), lookahead_distance);
 
   
   pub_cmd_->publish(cmd);
