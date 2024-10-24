@@ -36,7 +36,7 @@ private:
         msg->pose.covariance[7*5] = 100000.0;
 
         // insert imu if orientation is nan or empty
-        if (std::isnan(msg->pose.pose.orientation.x) ||
+        if (std::isnan(msg->pose.pose.orientation.x) || //gnssの受信がされない場合はimgのデータで置き換える．
             std::isnan(msg->pose.pose.orientation.y) ||
             std::isnan(msg->pose.pose.orientation.z) ||
             std::isnan(msg->pose.pose.orientation.w) ||
@@ -45,23 +45,23 @@ private:
              msg->pose.pose.orientation.z == 0 &&
              msg->pose.pose.orientation.w == 0))
         {
-            msg->pose.pose.orientation.x = imu_msg_.orientation.x;
+            msg->pose.pose.orientation.x = imu_msg_.orientation.x; //gnssをimuで置き換えている
             msg->pose.pose.orientation.y = imu_msg_.orientation.y;
             msg->pose.pose.orientation.z = imu_msg_.orientation.z;
             msg->pose.pose.orientation.w = imu_msg_.orientation.w;
         }
         pub_pose_->publish(*msg);
         if (!is_ekf_initialized_)
-            pub_initial_pose_3d_->publish(*msg);
+            pub_initial_pose_3d_->publish(*msg); //ekfの初期値として使用    
     }
 
     void imu_callback(sensor_msgs::msg::Imu::SharedPtr msg) {
-        imu_msg_ = *msg;
+        imu_msg_ = *msg; //最新のimuデータを保存
     }
 
     void twist_callback(const geometry_msgs::msg::TwistWithCovarianceStamped::SharedPtr)
     {
-        is_ekf_initialized_ = true;
+        is_ekf_initialized_ = true; //twistが受信されたらekfが初期化されたとみなす //gnssの受信がされない場合はimgのデータで置き換える．
     }
 
     rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_pose_;
