@@ -1,31 +1,20 @@
-// File: add_two_ints_server.cpp
-#include "rclcpp/rclcpp.hpp"
-#include "trajectory_handler/srv/path_info.hpp"
-#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
-#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
+#include "trajectory_handler/trajectory_handler.hpp"
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
-
 #include <memory>
 
-class TrajectoryHandler : public rclcpp::Node
-{
-public:
-  using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
-  using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
-  TrajectoryHandler()
-  : Node("trajectory_handler")
-  {
+
+TrajectoryHandler::TrajectoryHandler() : Node("trajectory_handler_node"){
     using std::placeholders::_1;
     using std::placeholders::_2;
-    service_ = this->create_service<trajectory_handler::srv::PathInfo>("add_two_ints", std::bind(&TrajectoryHandler::handle_service, this, _1, _2));
-    pub_ = this->create_publisher<Trajectory>("output", 1);
-  }
-private:
-  void handle_service(const std::shared_ptr<trajectory_handler::srv::PathInfo::Request> request,
+    this->service_ = this->create_service<trajectory_handler::srv::PathInfo>("add_two_ints", std::bind(&TrajectoryHandler::pub_trajectory, this, _1, _2));
+    this->pub_ = this->create_publisher<Trajectory>("output", 1);
+}
+
+void TrajectoryHandler::pub_trajectory(const std::shared_ptr<trajectory_handler::srv::PathInfo::Request> request,
                       std::shared_ptr<trajectory_handler::srv::PathInfo::Response> response)
-  {
+{
     // response->sum = request->a + request->b;
     response->error_code = 0;
 
@@ -56,10 +45,7 @@ private:
 
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\npath: %s", request->csv_path.c_str());
     // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%ld]", (long int)response->sum);
-  }
-  rclcpp::Service<trajectory_handler::srv::PathInfo>::SharedPtr service_;
-  rclcpp::Publisher<Trajectory>::SharedPtr pub_;
-};
+}
 
 int main(int argc, char * argv[])
 {

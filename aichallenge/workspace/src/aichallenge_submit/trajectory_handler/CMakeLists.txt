@@ -21,6 +21,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 ament_export_dependencies(rosidl_default_runtime)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_executable(trajectory_handler_node src/trajectory_handler.cpp)
 ament_target_dependencies(trajectory_handler_node rclcpp autoware_auto_planning_msgs)
