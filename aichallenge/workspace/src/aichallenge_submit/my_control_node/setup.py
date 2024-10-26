@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 package_name = 'my_control_node'
 
 setup(
     name=package_name,
     version='0.0.1',
-    packages=[package_name],
+    packages=find_packages(),
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='mtsubaki',
@@ -19,6 +19,5 @@ setup(
         ],
     },
     package_data={package_name: ['package.xml']},
-
     include_package_data=True,
 )
