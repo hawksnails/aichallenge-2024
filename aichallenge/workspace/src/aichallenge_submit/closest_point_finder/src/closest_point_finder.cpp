@@ -13,12 +13,12 @@ ClosestPointFinder::ClosestPointFinder()
   pub_closest_point_ = create_publisher<TrajectoryPoint>("control/debug/closest_point", 1);
 
   sub_kinematics_ = create_subscription<Odometry>(
-    "input/kinematics", 1, [this](const Odometry::SharedPtr msg) { 
+    "/localization/kinematic_state", 1, [this](const Odometry::SharedPtr msg) { 
       odometry_ = msg; 
     });
     
   sub_trajectory_ = create_subscription<Trajectory>(
-    "input/trajectory", 1, [this](const Trajectory::SharedPtr msg) { 
+    "/planning/scenario_planning/trajectory", 1, [this](const Trajectory::SharedPtr msg) { 
       trajectory_ = msg; 
     });
 
