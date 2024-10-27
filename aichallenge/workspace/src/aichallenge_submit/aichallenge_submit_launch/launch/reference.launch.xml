@@ -108,6 +108,9 @@
   <node pkg="my_control_node" exec="my_control_node" name="my_control_node" output="screen">
   </node>
 
+  <node pkg="closest_point_finder" exec="closest_point_finder" name="closest_point_finder" output="screen">
+  </node>
+
 
   <!-- Planning -->
   <group>

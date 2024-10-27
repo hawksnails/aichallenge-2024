@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>closest_point_finder</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>A node to find the closest point in a trajectory based on kinematics.</description>
   <maintainer email="suetsugu2649@gmail.com">rinnosuke</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license> <!-- 適切なライセンスに変更 -->
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
   <depend>motion_utils</depend>
-  
+  <depend>nav_msgs</depend> <!-- 追加 -->
+  <depend>your_package_name</depend> <!-- TrajectoryやTrajectoryPointの型を含むパッケージ -->
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
