@@ -23,10 +23,10 @@ ament_export_dependencies(rosidl_default_runtime)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_executable(trajectory_handler_node src/trajectory_handler.cpp)
-ament_target_dependencies(trajectory_handler_node rclcpp autoware_auto_planning_msgs)
+add_executable(trajectory_publisher src/trajectory_publisher.cpp)
+ament_target_dependencies(trajectory_publisher rclcpp autoware_auto_planning_msgs)
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
-target_link_libraries(trajectory_handler_node ${cpp_typesupport_target})
+target_link_libraries(trajectory_publisher ${cpp_typesupport_target})
 
 add_executable(path_setter src/path_setter.cpp)
 ament_target_dependencies(path_setter rclcpp autoware_auto_planning_msgs)
@@ -42,7 +42,7 @@ endif()
 
 
 install(TARGETS
-  trajectory_handler_node
+  trajectory_publisher
   path_setter
   DESTINATION lib/${PROJECT_NAME})
 

@@ -205,7 +205,7 @@
       </node> -->
 
       <!-- trajectory_handler -->
-      <node pkg="trajectory_handler" exec="trajectory_handler_node" name="trajectory_handler" output="screen">
+      <node pkg="trajectory_handler" exec="trajectory_publisher" name="trajectory_publisher" output="screen">
         <remap from="output" to="/planning/scenario_planning/trajectory"/>
       </node>
 

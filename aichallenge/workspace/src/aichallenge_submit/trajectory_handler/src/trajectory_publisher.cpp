@@ -1,4 +1,4 @@
-#include "trajectory_handler/trajectory_handler.hpp"
+#include "trajectory_handler/trajectory_publisher.hpp"
 #include "trajectory_handler/trajectory_generator.hpp"
 
 #include <eigen3/Eigen/Core>
