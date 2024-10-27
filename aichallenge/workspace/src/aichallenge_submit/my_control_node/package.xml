@@ -1,11 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
     <name>my_control_node</name>
     <version>0.0.1</version>
     <description>A ROS 2 node that subscribes to control commands and modifies them</description>
     <maintainer email="tsubaki@g.ecc.u-tokyo.ac.jp">mtsubaki</maintainer>
     <license>MIT</license>
+
+    <buildtool_depend>ament_python_auto</buildtool_depend>
+
     <exec_depend>rclpy</exec_depend>
     <exec_depend>tier4_control_msgs</exec_depend>
+    <depend>autoware_auto_control_msgs</depend>
+    <depend>autoware_auto_planning_msgs</depend>
+    <depend>motion_utils</depend>
+
+    <test_depend>ament_lint_auto</test_depend>
+    <test_depend>ament_lint_common</test_depend>
+
     <export>
         <build_type>ament_python</build_type>
     </export>

@@ -105,6 +105,10 @@
     <remap from="~/output/objects" to="/perception/object_recognition/objects"/>
   </node>
 
+  <node pkg="my_control_node" exec="my_control_node" name="my_control_node" output="screen">
+  </node>
+
+
   <!-- Planning -->
   <group>
     <push-ros-namespace namespace="planning"/>
