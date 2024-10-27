@@ -9,7 +9,7 @@
 TrajectoryHandler::TrajectoryHandler() : Node("trajectory_handler_node"){
     using std::placeholders::_1;
     using std::placeholders::_2;
-    this->service_ = this->create_service<trajectory_handler::srv::PathInfo>("add_two_ints", std::bind(&TrajectoryHandler::pub_trajectory, this, _1, _2));
+    this->service_ = this->create_service<trajectory_handler::srv::PathInfo>("path_info", std::bind(&TrajectoryHandler::pub_trajectory, this, _1, _2));
     this->pub_ = this->create_publisher<Trajectory>("output", 1);
 }
 

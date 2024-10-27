@@ -199,15 +199,14 @@
       </group> <!-- lane_driving -->
 
       <!-- Customizable -->
-      <node pkg="path_to_trajectory" exec="path_to_trajectory_node" name="path_to_trajectory" output="screen">
+      <!-- <node pkg="path_to_trajectory" exec="path_to_trajectory_node" name="path_to_trajectory" output="screen">
         <remap from="input" to="/planning/scenario_planning/lane_driving/behavior_planning/path_with_lane_id"/>
         <remap from="output" to="/planning/scenario_planning/trajectory"/>
-      </node>
+      </node> -->
 
       <!-- trajectory_handler -->
       <node pkg="trajectory_handler" exec="trajectory_handler_node" name="trajectory_handler" output="screen">
-        <remap from="input" to="/planning/scenario_planning/trajectory"/>
-        <remap from="output" to="/planning/scenario_planning/trajectory_handler/trajectory"/>
+        <remap from="output" to="/planning/scenario_planning/trajectory"/>
       </node>
 
     </group>

@@ -28,6 +28,11 @@ ament_target_dependencies(trajectory_handler_node rclcpp autoware_auto_planning_
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(trajectory_handler_node ${cpp_typesupport_target})
 
+add_executable(path_setter src/path_setter.cpp)
+ament_target_dependencies(path_setter rclcpp autoware_auto_planning_msgs)
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(path_setter ${cpp_typesupport_target})
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
@@ -38,6 +43,7 @@ endif()
 
 install(TARGETS
   trajectory_handler_node
+  path_setter
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
