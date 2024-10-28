@@ -7,6 +7,7 @@
   <arg name="map_path" default="$(find-pkg-share aichallenge_submit_launch)/map"/>
   <arg name="vehicle_model" default="racing_kart"  description="vehicle model name"/>
   <arg name="sensor_model" default="racing_kart_sensor_kit" description="sensor model name"/>
+
   <!-- Optional parameters -->
   <!-- Map -->
   <arg name="lanelet2_map_file" default="lanelet2_map.osm" description="lanelet2 map file name"/>
@@ -52,7 +53,7 @@
     </group>
   </group>
 
-    <!-- Localization -->
+  <!-- Localization -->
   <let name="pose_additional_delay_var" value="0.5" />
   <group>
     <push-ros-namespace namespace="localization"/>
@@ -103,6 +104,13 @@
   <node pkg="dummy_perception_publisher" exec="empty_objects_publisher" name="empty_objects_publisher" output="screen">
     <remap from="~/output/objects" to="/perception/object_recognition/objects"/>
   </node>
+
+  <node pkg="my_control_node" exec="my_control_node" name="my_control_node" output="screen">
+  </node>
+
+  <node pkg="closest_point_finder" exec="closest_point_finder" name="closest_point_finder" output="screen">
+  </node>
+
 
   <!-- Planning -->
   <group>
@@ -217,11 +225,12 @@
     </group>
   </group>
 
-  <!-- Pure Pursuit -->
   <let name="steering_tire_angle_gain_var" value="1.0" if="$(var simulation)"/>
   <let name="steering_tire_angle_gain_var" value="1.639" unless="$(var simulation)"/>
 
-  <node pkg="simple_pure_pursuit" exec="simple_pure_pursuit" name="simple_pure_pursuit_node" output="screen">
+
+  
+  <!-- <node pkg="simple_pure_pursuit" exec="simple_pure_pursuit" name="simple_pure_pursuit_node" output="screen">
     <param name="use_external_target_vel" value="true"/>
     <param name="external_target_vel" value="12.0"/>
     <param name="lookahead_gain" value="0.2"/> <!-- 0.4 -->
@@ -232,7 +241,9 @@
     <remap from="input/kinematics" to="/localization/kinematic_state"/>
     <remap from="input/trajectory" to="/planning/scenario_planning/trajectory"/>
     <remap from="output/control_cmd" to="/control/command/control_cmd"/>
-  </node>
+  </node> -->
+
+  <include file="$(find-pkg-share aichallenge_submit_launch)/launch/tier4_control_component.launch.xml"/>
 
   <!-- Map -->
   <group>
@@ -289,6 +300,7 @@
     </include>
   </group>
 
+  
   <!-- API -->
   <group>
     <!-- default_ad_api -->

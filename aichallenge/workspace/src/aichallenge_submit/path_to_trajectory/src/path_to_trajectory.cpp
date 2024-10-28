@@ -108,9 +108,10 @@ public:
             double angle = this->start_angle + (this->end_angle - this->start_angle) * t / path_time;
             double x = this->center.x + this->radius * std::cos(angle);
             double y = this->center.y + this->radius * std::sin(angle);
-            double th = angle + M_PI / 2.0;
+            bool is_hidarimawari = this->end_angle > this->start_angle;
+            double th = angle + (is_hidarimawari ? M_PI / 2.0 : -M_PI / 2.0);
             double vel = this->vel;
-            double curvature = 1.0 / this->radius * (this->end_angle > this->start_angle) ? 1 : -1;
+            double curvature = 1.0 / this->radius * (is_hidarimawari) ? 1 : -1;
             path.push_back({t, x, y, th, vel, curvature, acc});
         }
 
@@ -202,7 +203,7 @@ void PathToTrajectory::callback(const autoware_auto_planning_msgs::msg::PathWith
     auto traj = PathTrajectory(path);
 
     // PathTrajectoryの経路を生成 (dt = 0.01を仮定)
-    std::vector<PathPoint> generated_path = traj.generate_path(0.1);
+    std::vector<PathPoint> generated_path = traj.generate_path(0.05);
 
     // ROS 2 の Trajectory メッセージ型に変換
     autoware_auto_planning_msgs::msg::Trajectory trajectory;
@@ -212,6 +213,7 @@ void PathToTrajectory::callback(const autoware_auto_planning_msgs::msg::PathWith
         autoware_auto_planning_msgs::msg::TrajectoryPoint trajectory_point;
         trajectory_point.pose.position.x = path_point.x;
         trajectory_point.pose.position.y = path_point.y;
+        trajectory_point.pose.position.z = 43.0;
         auto quat = Eigen::Quaterniond::Identity();
         quat = Eigen::AngleAxisd(path_point.th, Eigen::Vector3d::UnitZ());
         trajectory_point.pose.orientation.x = quat.x();
@@ -219,8 +221,8 @@ void PathToTrajectory::callback(const autoware_auto_planning_msgs::msg::PathWith
         trajectory_point.pose.orientation.z = quat.z();
         trajectory_point.pose.orientation.w = quat.w();
         trajectory_point.longitudinal_velocity_mps = path_point.vel;
-        trajectory_point.lateral_velocity_mps = path_point.acc; // 横速度は使わないので加速度を入れる
-        trajectory_point.heading_rate_rps = path_point.curvature;
+        // trajectory_point.lateral_velocity_mps = 0; // 横速度は使わないので加速度を入れる
+        // trajectory_point.heading_rate_rps = 0;
         
         trajectory.points.emplace_back(std::move(trajectory_point));
     }

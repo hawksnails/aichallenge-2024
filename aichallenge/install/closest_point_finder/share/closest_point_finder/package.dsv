@@ -1,0 +1,8 @@
+source;share/closest_point_finder/hook/cmake_prefix_path.ps1
+source;share/closest_point_finder/hook/cmake_prefix_path.dsv
+source;share/closest_point_finder/hook/cmake_prefix_path.sh
+source;share/closest_point_finder/local_setup.bash
+source;share/closest_point_finder/local_setup.dsv
+source;share/closest_point_finder/local_setup.ps1
+source;share/closest_point_finder/local_setup.sh
+source;share/closest_point_finder/local_setup.zsh

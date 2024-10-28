@@ -1,0 +1,10 @@
+/aichallenge/build/closest_point_finder/CMakeFiles/uninstall.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/closest_point_finder_uninstall.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/closest_point_finder.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/test.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/edit_cache.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/rebuild_cache.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/list_install_components.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/install.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/install/local.dir
+/aichallenge/build/closest_point_finder/CMakeFiles/install/strip.dir

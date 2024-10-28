@@ -1,0 +1,15 @@
+/aichallenge/install/closest_point_finder/share/ament_index/resource_index/package_run_dependencies/closest_point_finder
+/aichallenge/install/closest_point_finder/share/ament_index/resource_index/parent_prefix_path/closest_point_finder
+/aichallenge/install/closest_point_finder/share/closest_point_finder/environment/ament_prefix_path.sh
+/aichallenge/install/closest_point_finder/share/closest_point_finder/environment/ament_prefix_path.dsv
+/aichallenge/install/closest_point_finder/share/closest_point_finder/environment/path.sh
+/aichallenge/install/closest_point_finder/share/closest_point_finder/environment/path.dsv
+/aichallenge/install/closest_point_finder/share/closest_point_finder/local_setup.bash
+/aichallenge/install/closest_point_finder/share/closest_point_finder/local_setup.sh
+/aichallenge/install/closest_point_finder/share/closest_point_finder/local_setup.zsh
+/aichallenge/install/closest_point_finder/share/closest_point_finder/local_setup.dsv
+/aichallenge/install/closest_point_finder/share/closest_point_finder/package.dsv
+/aichallenge/install/closest_point_finder/share/ament_index/resource_index/packages/closest_point_finder
+/aichallenge/install/closest_point_finder/share/closest_point_finder/cmake/closest_point_finderConfig.cmake
+/aichallenge/install/closest_point_finder/share/closest_point_finder/cmake/closest_point_finderConfig-version.cmake
+/aichallenge/install/closest_point_finder/share/closest_point_finder/package.xml
