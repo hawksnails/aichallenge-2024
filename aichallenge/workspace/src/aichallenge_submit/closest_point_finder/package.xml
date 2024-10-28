@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>closest_point_finder</name>
+  <version>0.0.0</version>
+  <description>A node to find the closest point in a trajectory based on kinematics.</description>
+  <maintainer email="suetsugu2649@gmail.com">rinnosuke</maintainer>
+  <license>MIT</license> <!-- 適切なライセンスに変更 -->
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>motion_utils</depend>
+  <depend>nav_msgs</depend> <!-- 追加 -->
+  <depend>your_package_name</depend> <!-- TrajectoryやTrajectoryPointの型を含むパッケージ -->
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

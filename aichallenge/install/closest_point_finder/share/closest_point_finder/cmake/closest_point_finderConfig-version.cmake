@@ -1,0 +1,1 @@
+/aichallenge/build/closest_point_finder/ament_cmake_core/closest_point_finderConfig-version.cmake

@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: my-control-node
+Version: 0.0.1
+Summary: A ROS 2 node that subscribes to control commands and modifies them.
+Home-page: UNKNOWN
+Maintainer: mtsubaki
+Maintainer-email: tsubaki@g.ecc.u-tokyo.ac.jp
+License: MIT
+Platform: UNKNOWN
+
+UNKNOWN
+

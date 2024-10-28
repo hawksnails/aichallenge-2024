@@ -1,0 +1,3 @@
+[console_scripts]
+control_node = my_control_node.control_node:main
+
