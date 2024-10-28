@@ -17,7 +17,7 @@ public:
   TrajectoryHandler() : Node("trajectory_handler")
   {
     client = this->create_client<trajectory_handler::srv::PathInfo>("/planning/scenario_planning/path_info");
-    sub_odom_ = create_subscription<Odometry>("input/kinematics", 1, std::bind(&TrajectoryHandler::callback, this, std::placeholders::_1));
+    sub_odom_ = create_subscription<Odometry>("/localization/kinematic_state", 1, std::bind(&TrajectoryHandler::callback, this, std::placeholders::_1));
     sub_traj_ = create_subscription<Trajectory>("input/trajectory", 1, [this](const Trajectory::SharedPtr msg) { trajectory_ = msg; });
   }
 private:
@@ -28,29 +28,39 @@ private:
         "3.csv",
     };
 
-    int send_request(std::string filename){
+    void send_request_async(std::string filename) {
         auto request = std::make_shared<trajectory_handler::srv::PathInfo::Request>();
         request->csv_path = filename;
-        auto result = client->async_send_request(request);
-        return result.get()->error_code;
-    }
 
+        using ServiceResponseFuture = rclcpp::Client<trajectory_handler::srv::PathInfo>::SharedFuture;
+        auto response_received_callback = [this, filename](ServiceResponseFuture future) {
+            auto result = future.get();
+            if (result->error_code != 0) {
+                RCLCPP_ERROR(this->get_logger(), "Failed to call service for %s", filename.c_str());
+                path_index--;  // エラーの場合はインデックスを戻す
+            } else {
+                RCLCPP_INFO(this->get_logger(), "Successfully published %s", filename.c_str());
+            }
+        };
+
+        client->async_send_request(request, response_received_callback);
+    }
+    int path_index = 0;
     void callback(const Odometry::SharedPtr msg){
-        static int path_index = 0;
         if (trajectory_ == nullptr) {
-            send_request(file_name_list.at(0));
+            RCLCPP_INFO(get_logger(), "initial trajectory");
+            send_request_async(file_name_list.at(0));
+            return;
         }
-        auto publish_flg_point = trajectory_->points.at(trajectory_->points.size() - 100);
+        auto publish_flg_point = trajectory_->points.at(trajectory_->points.size() - 10);
         double distance = std::hypot(publish_flg_point.pose.position.x - msg->pose.pose.position.x, publish_flg_point.pose.position.y - msg->pose.pose.position.y);
+        // RCLCPP_INFO(get_logger(), "distance: %f", distance);
         if (distance < 2.0) {
             path_index++;
             if (path_index >= file_name_list.size()) {
                 path_index = 0;
             }
-            int ret = send_request(file_name_list.at(path_index));
-            if (ret != 0) {
-                path_index--;
-            }
+            send_request_async(file_name_list.at(path_index));
         }
 
     }

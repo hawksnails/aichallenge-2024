@@ -45,6 +45,7 @@ void TrajectoryPublisher::pub_trajectory(const std::shared_ptr<trajectory_handle
         trajectory_point.pose.orientation.z = quat.z();
         trajectory_point.pose.orientation.w = quat.w();
         trajectory_point.longitudinal_velocity_mps = path_point.vel;
+        trajectory_point.acceleration_mps2 = path_point.acc;
         // trajectory_point.lateral_velocity_mps = path_point.acc; // 横速度は使わないので加速度を入れる
         // trajectory_point.heading_rate_rps = path_point.curvature;
         

@@ -218,7 +218,7 @@
       </node>
 
       <node pkg="trajectory_handler" exec="trajectory_handler_node" name="trajectory_handler" output="screen">
-        <remap from="input/kinematics" to="/localization/kinematic_state"/>
+        <!-- <remap from="input/kinematics" to="/localization/kinematic_state"/> -->
         <remap from="input/trajectory" to="/planning/scenario_planning/trajectory"/>
       </node>
 

@@ -103,9 +103,10 @@ public:
             double angle = this->start_angle + (this->end_angle - this->start_angle) * t / path_time;
             double x = this->center.x + this->radius * std::cos(angle);
             double y = this->center.y + this->radius * std::sin(angle);
-            double th = angle + M_PI / 2.0;
+            bool is_hidarimawari = this->end_angle > this->start_angle;
+            double th = angle + (is_hidarimawari ? M_PI / 2.0 : -M_PI / 2.0);
             double vel = this->vel;
-            double curvature = 1.0 / this->radius * (this->end_angle > this->start_angle ? 1 : -1);
+            double curvature = 1.0 / this->radius * (is_hidarimawari) ? 1 : -1;
             path.push_back({t, x, y, th, vel, curvature, acc});
         }
 
