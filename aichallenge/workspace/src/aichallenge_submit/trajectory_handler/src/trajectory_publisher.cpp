@@ -6,14 +6,14 @@
 #include <memory>
 
 
-TrajectoryHandler::TrajectoryHandler() : Node("trajectory_handler_node"){
+TrajectoryPublisher::TrajectoryPublisher() : Node("trajectory_handler_node"){
     using std::placeholders::_1;
     using std::placeholders::_2;
-    this->service_ = this->create_service<trajectory_handler::srv::PathInfo>("path_info", std::bind(&TrajectoryHandler::pub_trajectory, this, _1, _2));
+    this->service_ = this->create_service<trajectory_handler::srv::PathInfo>("path_info", std::bind(&TrajectoryPublisher::pub_trajectory, this, _1, _2));
     this->pub_ = this->create_publisher<Trajectory>("output", 1);
 }
 
-void TrajectoryHandler::pub_trajectory(const std::shared_ptr<trajectory_handler::srv::PathInfo::Request> request,
+void TrajectoryPublisher::pub_trajectory(const std::shared_ptr<trajectory_handler::srv::PathInfo::Request> request,
                       std::shared_ptr<trajectory_handler::srv::PathInfo::Response> response)
 {
 
@@ -22,7 +22,7 @@ void TrajectoryHandler::pub_trajectory(const std::shared_ptr<trajectory_handler:
 
     TrajectoryGenerator traj;
     try {
-        std::string dir_path = "/aichallenge/workspace/src/aichallenge_submit/path_to_trajectory/src/";
+        std::string dir_path = "/aichallenge/workspace/src/aichallenge_submit/trajectory_handler/csv/";
         traj = TrajectoryGenerator(dir_path + request->csv_path);
     } catch (const std::exception& e) {
         std::cout << "in constructor of PathTrajectory:" << e.what() << std::endl;
@@ -62,7 +62,7 @@ void TrajectoryHandler::pub_trajectory(const std::shared_ptr<trajectory_handler:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<TrajectoryHandler>());
+  rclcpp::spin(std::make_shared<TrajectoryPublisher>());
   rclcpp::shutdown();
   return 0;
 }

@@ -5,12 +5,12 @@
 #include "autoware_auto_planning_msgs/msg/trajectory.hpp"
 #include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 
-class TrajectoryHandler : public rclcpp::Node
+class TrajectoryPublisher : public rclcpp::Node
 {
 public:
   using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
   using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
-  TrajectoryHandler();
+  TrajectoryPublisher();
 private:
   void pub_trajectory(const std::shared_ptr<trajectory_handler::srv::PathInfo::Request> request,
                       std::shared_ptr<trajectory_handler::srv::PathInfo::Response> response);
