@@ -52,7 +52,15 @@ private:
             send_request_async(file_name_list.at(0));
             return;
         }
-        auto publish_flg_point = trajectory_->points.at(trajectory_->points.size() - 10);
+        double last_point_t = trajectory_->points.at(trajectory_->points.size() - 1).time_from_start.sec;
+        int flg_index = 0;
+        for (int i = trajectory_->points.size() - 1; i >= 0; i--) {
+            if (last_point_t - trajectory_->points.at(i).time_from_start.sec > 3) {
+                break;
+            }
+            flg_index = i;
+        }
+        auto publish_flg_point = trajectory_->points.at(flg_index);
         double distance = std::hypot(publish_flg_point.pose.position.x - msg->pose.pose.position.x, publish_flg_point.pose.position.y - msg->pose.pose.position.y);
         // RCLCPP_INFO(get_logger(), "distance: %f", distance);
         if (distance < 2.0) {
