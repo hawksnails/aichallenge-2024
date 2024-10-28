@@ -223,7 +223,7 @@ void PathToTrajectory::callback(const autoware_auto_planning_msgs::msg::PathWith
         trajectory_point.longitudinal_velocity_mps = path_point.vel;
         // trajectory_point.lateral_velocity_mps = 0; // 横速度は使わないので加速度を入れる
         // trajectory_point.heading_rate_rps = 0;
-        
+	// trajectory_point.acceleration_mps2 = path_point.acc;
         trajectory.points.emplace_back(std::move(trajectory_point));
     }
 
