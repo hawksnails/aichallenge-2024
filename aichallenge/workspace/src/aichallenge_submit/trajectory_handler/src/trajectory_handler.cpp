@@ -28,6 +28,8 @@ private:
         "3.csv",
     };
 
+    double last_update_time = 0;
+
     void send_request_async(std::string filename) {
         auto request = std::make_shared<trajectory_handler::srv::PathInfo::Request>();
         request->csv_path = filename;
@@ -40,6 +42,7 @@ private:
                 path_index--;  // エラーの場合はインデックスを戻す
             } else {
                 RCLCPP_INFO(this->get_logger(), "Successfully published %s", filename.c_str());
+                this->last_update_time = now().seconds();
             }
         };
 
@@ -50,6 +53,10 @@ private:
         if (trajectory_ == nullptr) {
             RCLCPP_INFO(get_logger(), "initial trajectory");
             send_request_async(file_name_list.at(0));
+            return;
+        }
+        if (now().seconds() - this->last_update_time < 3) {
+            // 前回の更新から3秒以内は更新しない
             return;
         }
         double last_point_t = trajectory_->points.at(trajectory_->points.size() - 1).time_from_start.sec;
