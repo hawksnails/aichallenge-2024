@@ -11,6 +11,7 @@ pkill -9 imu_gnss_poser_
 pkill -9 initial_pose_ad
 pkill -9 mission_planner
 pkill -9 path_to_traject
+pkill -9 my_control_node
 pkill -9 python3
 pkill -9 robot_state_pub
 pkill -9 ros2
