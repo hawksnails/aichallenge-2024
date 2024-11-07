@@ -16,6 +16,7 @@ struct PathPoint {
     double x=0, y=0, th=0;
     double vel=0, curvature=0;
     double acc=0;
+    double heading_rate=0;
 
     PathPoint operator+(const PathPoint& rhs) const {
         PathPoint ret = rhs;
@@ -140,10 +141,14 @@ public:
             double th = prev_point.th + prev_curvature * du;
             th = std::remainder(th, 2 * M_PI);
             double& k = curvature_incresing_rate;
-            double x = prev_point.x + std::cos(k * u * u / 2.0) * du - 0.5 * k * u * std::sin(k * u * u / 2.0) * du * du;
-            double y = prev_point.y + std::sin(k * u * u / 2.0) * du + 0.5 * k * u * std::cos(k * u * u / 2.0) * du * du;
-            this->dense_points.push_back({.x=x, .y=y, .th=th, .curvature=curvature});
-            prev_point = {.x=x, .y=y, .th=th, .curvature=curvature};
+            auto dp = PathPoint{};
+            dp.x = prev_point.x + std::cos(k * u * u / 2.0) * du - 0.5 * k * u * std::sin(k * u * u / 2.0) * du * du;
+            dp.y = prev_point.y + std::sin(k * u * u / 2.0) * du + 0.5 * k * u * std::cos(k * u * u / 2.0) * du * du;
+            dp.th = th;
+            dp.curvature = curvature;
+            dp.heading_rate = prev_curvature;
+            this->dense_points.push_back(dp);
+            prev_point = dp;
             prev_curvature = curvature;
         }
         this->du = du;
@@ -215,6 +220,7 @@ public:
             dense_points.at(i).acc = 0.0;
             dense_points.at(i).curvature = (end_curvature - start_curvature) * (i * du / length) + start_curvature;
             dense_points.at(i).curvature *= (!is_hidarimawari) ? -1 : 1;
+            dense_points.at(i).heading_rate = dense_points.at(i).vel * dense_points.at(i).curvature; 
             if (i == 0){
                 dense_points.at(i).time = 0.0;
             }else{

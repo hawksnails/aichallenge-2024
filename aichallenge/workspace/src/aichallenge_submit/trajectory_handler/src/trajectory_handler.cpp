@@ -23,9 +23,9 @@ public:
 private:
     Trajectory::SharedPtr trajectory_;
     std::vector<std::string> file_name_list = {
-        "1.csv",
-        "2.csv",
-        "3.csv",
+        "1.csv"
+        // "2.csv",
+        // "3.csv",
     };
 
     double last_update_time = 0;
