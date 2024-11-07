@@ -8,7 +8,7 @@
 
     # -- path smoothing --
     enable_path_smoothing: true #false  # flag for path smoothing
-    path_filter_moving_ave_num: 10 #50 # param of moving average filter for path smoothing
+    path_filter_moving_ave_num: 10 #8 #50 # param of moving average filter for path smoothing
     curvature_smoothing_num_traj: 15 #15        # point-to-point index distance used in curvature calculation (for trajectory): curvature is calculated from three points p(i-num), p(i), p(i+num)
     curvature_smoothing_num_ref_steer: 25   # point-to-point index distance used in curvature calculation (for steer command reference): curvature is calculated from three points p(i-num), p(i), p(i+num)
 
@@ -29,7 +29,7 @@
     mpc_weight_steer_acc: 0.000001               # steering angular acceleration weight in matrix R
     mpc_low_curvature_weight_lat_error: 0.2                    # lateral error weight in matrix Q in low curvature point
     mpc_low_curvature_weight_heading_error: 0.05                # heading error weight in matrix Q in low curvature point
-    mpc_low_curvature_weight_heading_error_squared_vel: 0.3    # heading error * velocity weight in matrix Q in low curvature point
+    mpc_low_curvature_weight_heading_error_squared_vel: 0.2 #0.3    # heading error * velocity weight in matrix Q in low curvature point
     mpc_low_curvature_weight_steering_input: 1.0               # steering error weight in matrix R in low curvature point
     mpc_low_curvature_weight_steering_input_squared_vel: 0.25  # steering error * velocity weight in matrix R in low curvature point
     mpc_low_curvature_weight_lat_jerk: 0.02                     # lateral jerk weight in matrix R in low curvature point
