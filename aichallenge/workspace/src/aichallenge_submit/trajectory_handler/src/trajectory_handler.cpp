@@ -31,7 +31,6 @@ private:
 	"6.csv",
 	"7.csv",
 	"8.csv",
-	"9.csv",
     };
 
     double last_update_time = 0;
