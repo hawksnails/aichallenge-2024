@@ -26,7 +26,14 @@ private:
         "1.csv",
         "2.csv",
         "3.csv",
+	"4.csv",
+	"5.csv",
+	"6.csv",
+	"7.csv",
+	"8.csv",
     };
+
+    double last_update_time = 0;
 
     void send_request_async(std::string filename) {
         auto request = std::make_shared<trajectory_handler::srv::PathInfo::Request>();
@@ -40,6 +47,7 @@ private:
                 path_index--;  // エラーの場合はインデックスを戻す
             } else {
                 RCLCPP_INFO(this->get_logger(), "Successfully published %s", filename.c_str());
+                this->last_update_time = now().seconds();
             }
         };
 
@@ -52,7 +60,19 @@ private:
             send_request_async(file_name_list.at(0));
             return;
         }
-        auto publish_flg_point = trajectory_->points.at(trajectory_->points.size() - 10);
+        if (now().seconds() - this->last_update_time < 3) {
+            // 前回の更新から3秒以内は更新しない
+            return;
+        }
+        double last_point_t = trajectory_->points.at(trajectory_->points.size() - 1).time_from_start.sec;
+        int flg_index = 0;
+        for (int i = trajectory_->points.size() - 1; i >= 0; i--) {
+            if (last_point_t - trajectory_->points.at(i).time_from_start.sec > 3) {
+                break;
+            }
+            flg_index = i;
+        }
+        auto publish_flg_point = trajectory_->points.at(flg_index);
         double distance = std::hypot(publish_flg_point.pose.position.x - msg->pose.pose.position.x, publish_flg_point.pose.position.y - msg->pose.pose.position.y);
         // RCLCPP_INFO(get_logger(), "distance: %f", distance);
         if (distance < 2.0) {
